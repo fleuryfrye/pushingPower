@@ -1,0 +1,7 @@
+../Core/Src/main.c:42:5:main	1
+../Core/Src/main.c:75:6:SystemClock_Config	3
+../Core/Src/main.c:108:13:initGPIO	1
+../Core/Src/main.c:119:13:chargePiezo	2
+../Core/Src/main.c:131:13:dischargePiezo	2
+../Core/Src/main.c:160:13:MX_GPIO_Init	1
+../Core/Src/main.c:191:6:Error_Handler	1

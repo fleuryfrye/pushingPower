@@ -19,84 +19,51 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
+#define PIEZO_CHARGE_PIN 9
+#define PIEZO_DISCHARGE_PIN 10
+#define OUTPUT_MODE 1
+#define HIGH_SPEED_OUTPUT 0x03
+#define PIEZO_CHARGE_PIN_HIGH (1 << PIEZO_CHARGE_PIN)
+#define PIEZO_DISCHARGE_PIN_HIGH (1 << PIEZO_DISCHARGE_PIN)
 
-/* USER CODE END Includes */
 
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
 
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
-
-/* USER CODE BEGIN PV */
-
-/* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-/* USER CODE BEGIN PFP */
 
-/* USER CODE END PFP */
+static void initGPIO(void);
+static void chargePiezo(void);
+static void dischargePiezo(void);
 
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
 
-/* USER CODE END 0 */
 
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
 int main(void)
 {
-
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
-
-  /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
 
   /* Configure the system clock */
   SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
 
-  /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  /* USER CODE BEGIN 2 */
+//  MX_GPIO_Init();
+  initGPIO();
 
-  /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
+    chargePiezo();
+    HAL_Delay(1000);
+    dischargePiezo();
 
-    /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
@@ -136,6 +103,54 @@ void SystemClock_Config(void)
     Error_Handler();
   }
 }
+
+
+static void initGPIO(void)
+{
+	GPIOA->MODER = (OUTPUT_MODE << (PIEZO_CHARGE_PIN * 2));
+	GPIOA->MODER = (OUTPUT_MODE << (PIEZO_DISCHARGE_PIN * 2));
+
+	GPIOA->OSPEEDR = (HIGH_SPEED_OUTPUT << (PIEZO_CHARGE_PIN * 2));
+	GPIOA->OSPEEDR = (HIGH_SPEED_OUTPUT << (PIEZO_DISCHARGE_PIN * 2));
+
+	return;
+}
+
+static void chargePiezo(void)
+{
+	//Before activating, make sure that the discharge transistor is turned off!
+	if(GPIOA->ODR & PIEZO_DISCHARGE_PIN_HIGH)
+	{
+		GPIOA->ODR &= ~PIEZO_DISCHARGE_PIN_HIGH; //clear discharge pin bit
+	}
+
+	//Activate the transistor to begin charging the piezo.
+	GPIOA->ODR |= PIEZO_CHARGE_PIN_HIGH;
+}
+
+static void dischargePiezo(void)
+{
+	//Before activating, make sure that the charge transistor is turned off!
+	if(GPIOA->ODR & PIEZO_CHARGE_PIN_HIGH)
+	{
+		GPIOA->ODR &= ~PIEZO_CHARGE_PIN_HIGH; // clear charge pin bit.
+	}
+
+
+	//Active the transistor to drain the piezo.
+	GPIOA->ODR |= PIEZO_DISCHARGE_PIN_HIGH;
+}
+
+
+
+
+
+
+
+
+
+
+
 
 /**
   * @brief GPIO Initialization Function
