@@ -1,41 +1,24 @@
-/* USER CODE BEGIN Header */
-/**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2024 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
-/* USER CODE END Header */
-/* Includes ------------------------------------------------------------------*/
+
 #include "main.h"
 
-#define PIEZO_CHARGE_PIN 9U
-#define PIEZO_DISCHARGE_PIN 10U
-#define OUTPUT_MODE 1U
-#define HIGH_SPEED_OUTPUT 0x03
-#define PIEZO_CHARGE_PIN_HIGH (1U << PIEZO_CHARGE_PIN)
-#define PIEZO_DISCHARGE_PIN_HIGH (1U << PIEZO_DISCHARGE_PIN)
-
-
+#include <math.h>
 
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 
 static void initGPIO(void);
+static void initADC(void);
+
+
 static void chargePiezo(void);
 static void dischargePiezo(void);
+static void getPiezoVoltage(int16_t* voltage);
 
+
+
+extern volatile int16_t adcData; //raw signed 12 bit data.
+extern volatile uint8_t ADCRDY;
 
 
 int main(void)
@@ -49,6 +32,9 @@ int main(void)
   SystemClock_Config();
 
   initGPIO();
+  initADC();
+
+  int16_t piezoVoltage;
 
   while (1)
   {
@@ -58,13 +44,72 @@ int main(void)
     HAL_Delay(1000);
 
 
+    getPiezoVoltage(&piezoVoltage); //testing.
+
+    HAL_Delay(1000);
+
+
+
+
+
   }
 }
 
+static void initADC(void)
+{
+	GPIOA->MODER |= (ADC_INPUT_MODE << (ADC_PIN * 2));
+	RCC->AHBENR |= (1 << ADC_CLK_EN); // enable ADC clock
 
+
+	NVIC_EnableIRQ(ADC1_2_IRQn); //Register the interrupt with NVIC
+	__enable_irq();
+
+
+
+
+	//Voltage regular must start up before calibration.
+	ADC1->CR &= ~(1 << ADC1_CR_VREG_MSB);
+	ADC1->CR |= (1 << ADC1_CR_VREG_LSB); //startup vreg
+	HAL_Delay(1); //must wait at least 10 us after starting up the vreg
+
+
+
+	//Recommended to calibrate the ADC on startup.
+	ADC1->CR |= (1 << ADC1_CR_CAL);
+	while(ADC1->CR & (1 << ADC1_CR_CAL)); // hardware clears cal bit when finished.
+
+
+	//Enable ADC_READY and end of conversion interrupts
+	ADC1->IER |= (1 << ADC_RDY);
+	ADC1->IER |= (1 << ADC_EOC);
+
+
+	ADC12_COMMON->CCR |= (2 << ADC1_CCR_CKMODE); //Set ADC clock to 36 MHz. (prescaler = /2)
+
+	ADC1->SQR1 |= (ADC1_CHANNEL_1 << ADC1_SQR1_SQ1); //activate channel 1.
+	//note: length bit field is left as 0 because we are only doing 1 conversion.
+
+	//sampling time will be 1.5 ADC clock cycles.
+
+	ADC1->CFGR |= (1 << ADC1_CFGR_CONT); //continuously sample
+	ADC1->CFGR |= (1 << ADC1_CFGR_OVRMOD); // if sample is missed, overwrite with newest
+
+	//Data will be 12 bits signed and right aligned.
+
+
+	ADC1->CR |= (1 << ADC1_CR_EN); //Enable the ADC and wait for it to be ready.
+
+	while(!ADCRDY); //Interrupt will set ADCREADY.
+
+
+	ADC1->CR |= (1 << ADC1_CR_ADSTART); //Begin sampling!
+
+
+}
 
 static void initGPIO(void)
 {
+	//Peripheral clocks turned off by default, each GPIO port has a clock that must be activated first.
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 
 	GPIOA->MODER |= (OUTPUT_MODE << (PIEZO_CHARGE_PIN * 2));
@@ -105,12 +150,13 @@ static void dischargePiezo(void)
 
 
 
+static void getPiezoVoltage(int16_t* voltage)
+{
 
+	//may have to make this a float but we will have to see.
+	*voltage = ((ADC_VREF) / (pow(2, 12) - 1)) * adcData;
 
-
-
-
-
+}
 
 
 

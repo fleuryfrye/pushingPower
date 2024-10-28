@@ -36,6 +36,11 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
+#define ADC_READY_BITMASK (1 << ADC_RDY)
+#define ADC_EOC_BITMASK (1 << ADC_EOC)
+
+volatile int16_t adcData; //signed 12 bit data.
+volatile uint8_t ADCRDY = 0;
 
 /* USER CODE END PM */
 
@@ -199,5 +204,25 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /* USER CODE BEGIN 1 */
+
+
+void ADC1_2_IRQHandler(void)
+{
+	if(ADC1->ISR & ADC_READY_BITMASK)
+	{
+		ADCRDY = 1;
+
+		ADC1->ISR = ~(ADC_READY_BITMASK); //Clear ADC_READY flag.
+	}
+
+	if(ADC1->ISR & ADC_EOC_BITMASK)
+	{
+		adcData = (int16_t)(ADC1->DR & 0x0000FFFF);
+
+		ADC1->ISR =  ~(ADC_EOC_BITMASK); //Clear EOC flag.
+	}
+
+	return;
+}
 
 /* USER CODE END 1 */
