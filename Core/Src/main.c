@@ -31,40 +31,37 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
+  __enable_irq();
+
+
   initGPIO();
   initADC();
 
-  int16_t piezoVoltage;
+  int16_t piezoVoltage = 0;
 
-  while (1)
+  while (1) //while loop being used for testing right now.
   {
     chargePiezo();
-    HAL_Delay(1000);
-    dischargePiezo();
-    HAL_Delay(1000);
-
 
     getPiezoVoltage(&piezoVoltage); //testing.
 
     HAL_Delay(1000);
-
-
-
-
+    dischargePiezo();
+    HAL_Delay(1000);
 
   }
 }
 
 static void initADC(void)
 {
+	// ADC clock frequency is set to 36 MHz.
+	//According to the reference manual, 12-bit resolution requires 14 clock cycles per sample.
+	// This results in one ADC sample being generated every 388 nanoseconds.
+
 	GPIOA->MODER |= (ADC_INPUT_MODE << (ADC_PIN * 2));
 	RCC->AHBENR |= (1 << ADC_CLK_EN); // enable ADC clock
 
-
-	NVIC_EnableIRQ(ADC1_2_IRQn); //Register the interrupt with NVIC
-	__enable_irq();
-
-
+	ADC12_COMMON->CCR |= (2 << ADC1_CCR_CKMODE); //Set ADC clock to 36 MHz. (prescaler = /2)
 
 
 	//Voltage regular must start up before calibration.
@@ -79,25 +76,32 @@ static void initADC(void)
 	while(ADC1->CR & (1 << ADC1_CR_CAL)); // hardware clears cal bit when finished.
 
 
-	//Enable ADC_READY and end of conversion interrupts
+	//Enable ADC ready and end of conversion interrupts
 	ADC1->IER |= (1 << ADC_RDY);
 	ADC1->IER |= (1 << ADC_EOC);
 
 
-	ADC12_COMMON->CCR |= (2 << ADC1_CCR_CKMODE); //Set ADC clock to 36 MHz. (prescaler = /2)
+
+	//12 bit is right aligned and (allegedly) sign extended to 16 bits. Need to verify with negative voltage.
+	//(this looks good for positive values, but I need to check negative values!)
+
+	//Enable the ADC code to be signed.
+	ADC1->OFR4 |= (1 << ADC1_OFR4_OFFSET1_EN);
+	ADC1->OFR4 |= (1 << ADC1_OFR4_OFFSET1_CH);
+
 
 	ADC1->SQR1 |= (ADC1_CHANNEL_1 << ADC1_SQR1_SQ1); //activate channel 1.
 	//note: length bit field is left as 0 because we are only doing 1 conversion.
 
-	//sampling time will be 1.5 ADC clock cycles.
+
 
 	ADC1->CFGR |= (1 << ADC1_CFGR_CONT); //continuously sample
 	ADC1->CFGR |= (1 << ADC1_CFGR_OVRMOD); // if sample is missed, overwrite with newest
 
-	//Data will be 12 bits signed and right aligned.
-
 
 	ADC1->CR |= (1 << ADC1_CR_EN); //Enable the ADC and wait for it to be ready.
+
+	NVIC_EnableIRQ(ADC1_2_IRQn); //Register the interrupt with NVIC
 
 	while(!ADCRDY); //Interrupt will set ADCREADY.
 
@@ -154,7 +158,10 @@ static void getPiezoVoltage(int16_t* voltage)
 {
 
 	//may have to make this a float but we will have to see.
-	*voltage = ((ADC_VREF) / (pow(2, 12) - 1)) * adcData;
+	float rawVoltage = (ADC_VREF * adcData) / (pow(2, 12) - 1);
+
+
+	*voltage = (int16_t)(rawVoltage * ADC_PIEZO_SCALAR); //Scale raw voltage to be -20V to 5000V
 
 }
 
