@@ -212,14 +212,12 @@ void ADC1_2_IRQHandler(void)
 	{
 		ADCRDY = 1;
 
-		ADC1->ISR = ~(ADC_READY_BITMASK); //Clear ADC_READY flag.
+		ADC1->ISR |= (ADC_READY_BITMASK); //Clear ADC_READY flag by writing a 1 to it.
 	}
 
 	if(ADC1->ISR & ADC_EOC_BITMASK)
 	{
-		adcData = (int16_t)(ADC1->DR & 0x0000FFFF);
-
-		ADC1->ISR =  ~(ADC_EOC_BITMASK); //Clear EOC flag.
+		adcData = (int16_t)(ADC1->DR & 0x0000FFFF); //EOC flag is cleared by hardware after reading.
 	}
 
 	return;
