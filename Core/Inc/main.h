@@ -42,6 +42,9 @@ extern "C" {
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
 
+
+//Piezo and ADC pins are on Port A
+
 #define PIEZO_CHARGE_PIN 9U
 #define PIEZO_DISCHARGE_PIN 10U
 #define OUTPUT_MODE 1U
@@ -49,10 +52,10 @@ extern "C" {
 #define PIEZO_CHARGE_PIN_HIGH (1U << PIEZO_CHARGE_PIN)
 #define PIEZO_DISCHARGE_PIN_HIGH (1U << PIEZO_DISCHARGE_PIN)
 
+
 #define ADC_PIN 0U
 #define ADC_INPUT_MODE 3U
 #define ADC_CLK_EN 28U
-
 
 #define ADC_RDY 0U
 #define ADC_EOC 2U
@@ -72,7 +75,12 @@ extern "C" {
 
 #define ADC1_CCR_CKMODE 16U
 
+#define ADC1_OFR4_OFFSET1_EN 31U
+#define ADC1_OFR4_OFFSET1_CH 1U //[4:0]
+
 #define ADC_VREF 3.3
+#define ADC_PIEZO_SCALAR 1515.15 //3.3 volts should represent 5000V
+
 
 
 
