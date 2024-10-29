@@ -1,9 +1,8 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file           : main.h
-  * @brief          : Header for main.c file.
-  *                   This file contains the common defines of the application.
+  * @file    stm32f3xx_it.c
+  * @brief   Interrupt Service Routines.
   ******************************************************************************
   * @attention
   *
@@ -18,99 +17,210 @@
   */
 /* USER CODE END Header */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __MAIN_H
-#define __MAIN_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f3xx_hal.h"
-
+#include "main.h"
+#include "stm32f3xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
 /* USER CODE END Includes */
 
-/* Exported types ------------------------------------------------------------*/
-/* USER CODE BEGIN ET */
+/* Private typedef -----------------------------------------------------------*/
+/* USER CODE BEGIN TD */
 
-/* USER CODE END ET */
+/* USER CODE END TD */
 
-/* Exported constants --------------------------------------------------------*/
-/* USER CODE BEGIN EC */
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
 
+/* USER CODE END PD */
 
-//Piezo and ADC pins are on Port A
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+#define ADC_READY_BITMASK (1 << ADC_RDY)
+#define ADC_EOC_BITMASK (1 << ADC_EOC)
 
-#define PIEZO_CHARGE_PIN 9U
-#define PIEZO_DISCHARGE_PIN 10U
-#define OUTPUT_MODE 1U
-#define HIGH_SPEED_OUTPUT 0x03
-#define PIEZO_CHARGE_PIN_HIGH (1U << PIEZO_CHARGE_PIN)
-#define PIEZO_DISCHARGE_PIN_HIGH (1U << PIEZO_DISCHARGE_PIN)
+volatile int16_t adcData; //signed 12 bit data.
+volatile uint8_t ADCRDY = 0;
 
+/* USER CODE END PM */
 
-#define ADC_PIN 0U
-#define ADC_INPUT_MODE 3U
-#define ADC_CLK_EN 28U
+/* Private variables ---------------------------------------------------------*/
+/* USER CODE BEGIN PV */
 
-#define ADC_RDY 0U
-#define ADC_EOC 2U
+/* USER CODE END PV */
 
-#define ADC1_SQR1_SQ1 6U // [4:0]
-#define ADC1_CHANNEL_1 1U
+/* Private function prototypes -----------------------------------------------*/
+/* USER CODE BEGIN PFP */
 
+/* USER CODE END PFP */
 
-#define ADC1_CFGR_CONT 13U
-#define ADC1_CFGR_OVRMOD 12U
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
 
-#define ADC1_CR_ADSTART 2U
-#define ADC1_CR_EN 0U
-#define ADC1_CR_CAL 31U
-#define ADC1_CR_VREG_MSB 29U
-#define ADC1_CR_VREG_LSB 28U
+/* USER CODE END 0 */
 
-#define ADC1_CCR_CKMODE 16U
+/* External variables --------------------------------------------------------*/
 
-#define ADC1_OFR4_OFFSET1_EN 31U
-#define ADC1_OFR4_OFFSET1_CH 1U //[4:0]
+/* USER CODE BEGIN EV */
 
-#define ADC_VREF 3.3
-#define ADC_PIEZO_SCALAR 1515.15 //3.3 volts should represent 5000V
+/* USER CODE END EV */
 
+/******************************************************************************/
+/*           Cortex-M4 Processor Interruption and Exception Handlers          */
+/******************************************************************************/
+/**
+  * @brief This function handles Non maskable interrupt.
+  */
+void NMI_Handler(void)
+{
+  /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
 
-
-
-extern volatile int16_t adcData; //signed 12 bit data.
-extern volatile uint8_t ADCRDY;
-
-
-
-/* USER CODE END EC */
-
-/* Exported macro ------------------------------------------------------------*/
-/* USER CODE BEGIN EM */
-
-/* USER CODE END EM */
-
-/* Exported functions prototypes ---------------------------------------------*/
-void Error_Handler(void);
-
-/* USER CODE BEGIN EFP */
-
-/* USER CODE END EFP */
-
-/* Private defines -----------------------------------------------------------*/
-
-/* USER CODE BEGIN Private defines */
-
-/* USER CODE END Private defines */
-
-#ifdef __cplusplus
+  /* USER CODE END NonMaskableInt_IRQn 0 */
+  /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
+   while (1)
+  {
+  }
+  /* USER CODE END NonMaskableInt_IRQn 1 */
 }
-#endif
 
-#endif /* __MAIN_H */
+/**
+  * @brief This function handles Hard fault interrupt.
+  */
+void HardFault_Handler(void)
+{
+  /* USER CODE BEGIN HardFault_IRQn 0 */
+
+  /* USER CODE END HardFault_IRQn 0 */
+  while (1)
+  {
+    /* USER CODE BEGIN W1_HardFault_IRQn 0 */
+    /* USER CODE END W1_HardFault_IRQn 0 */
+  }
+}
+
+/**
+  * @brief This function handles Memory management fault.
+  */
+void MemManage_Handler(void)
+{
+  /* USER CODE BEGIN MemoryManagement_IRQn 0 */
+
+  /* USER CODE END MemoryManagement_IRQn 0 */
+  while (1)
+  {
+    /* USER CODE BEGIN W1_MemoryManagement_IRQn 0 */
+    /* USER CODE END W1_MemoryManagement_IRQn 0 */
+  }
+}
+
+/**
+  * @brief This function handles Pre-fetch fault, memory access fault.
+  */
+void BusFault_Handler(void)
+{
+  /* USER CODE BEGIN BusFault_IRQn 0 */
+
+  /* USER CODE END BusFault_IRQn 0 */
+  while (1)
+  {
+    /* USER CODE BEGIN W1_BusFault_IRQn 0 */
+    /* USER CODE END W1_BusFault_IRQn 0 */
+  }
+}
+
+/**
+  * @brief This function handles Undefined instruction or illegal state.
+  */
+void UsageFault_Handler(void)
+{
+  /* USER CODE BEGIN UsageFault_IRQn 0 */
+
+  /* USER CODE END UsageFault_IRQn 0 */
+  while (1)
+  {
+    /* USER CODE BEGIN W1_UsageFault_IRQn 0 */
+    /* USER CODE END W1_UsageFault_IRQn 0 */
+  }
+}
+
+/**
+  * @brief This function handles System service call via SWI instruction.
+  */
+void SVC_Handler(void)
+{
+  /* USER CODE BEGIN SVCall_IRQn 0 */
+
+  /* USER CODE END SVCall_IRQn 0 */
+  /* USER CODE BEGIN SVCall_IRQn 1 */
+
+  /* USER CODE END SVCall_IRQn 1 */
+}
+
+/**
+  * @brief This function handles Debug monitor.
+  */
+void DebugMon_Handler(void)
+{
+  /* USER CODE BEGIN DebugMonitor_IRQn 0 */
+
+  /* USER CODE END DebugMonitor_IRQn 0 */
+  /* USER CODE BEGIN DebugMonitor_IRQn 1 */
+
+  /* USER CODE END DebugMonitor_IRQn 1 */
+}
+
+/**
+  * @brief This function handles Pendable request for system service.
+  */
+void PendSV_Handler(void)
+{
+  /* USER CODE BEGIN PendSV_IRQn 0 */
+
+  /* USER CODE END PendSV_IRQn 0 */
+  /* USER CODE BEGIN PendSV_IRQn 1 */
+
+  /* USER CODE END PendSV_IRQn 1 */
+}
+
+/**
+  * @brief This function handles System tick timer.
+  */
+void SysTick_Handler(void)
+{
+  /* USER CODE BEGIN SysTick_IRQn 0 */
+
+  /* USER CODE END SysTick_IRQn 0 */
+  HAL_IncTick();
+  /* USER CODE BEGIN SysTick_IRQn 1 */
+
+  /* USER CODE END SysTick_IRQn 1 */
+}
+
+/******************************************************************************/
+/* STM32F3xx Peripheral Interrupt Handlers                                    */
+/* Add here the Interrupt Handlers for the used peripherals.                  */
+/* For the available peripheral interrupt handler names,                      */
+/* please refer to the startup file (startup_stm32f3xx.s).                    */
+/******************************************************************************/
+
+/* USER CODE BEGIN 1 */
+
+
+void ADC1_2_IRQHandler(void)
+{
+	if(ADC1->ISR & ADC_READY_BITMASK)
+	{
+		ADCRDY = 1;
+
+		ADC1->ISR |= (ADC_READY_BITMASK); //Clear ADC_READY flag by writing a 1 to it.
+	}
+
+	if(ADC1->ISR & ADC_EOC_BITMASK)
+	{
+		adcData = (int16_t)(ADC1->DR & 0x0000FFFF); //EOC flag is cleared by hardware after reading.
+	}
+
+	return;
+}
+
+/* USER CODE END 1 */
