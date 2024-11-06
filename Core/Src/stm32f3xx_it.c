@@ -21,6 +21,7 @@
 #include "main.h"
 #include "stm32f3xx_it.h"
 #include "spi.h"
+#include "adc.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -37,11 +38,6 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#define ADC_READY_BITMASK (1 << ADC_RDY)
-#define ADC_EOC_BITMASK (1 << ADC_EOC)
-
-volatile int16_t adcData; //signed 12 bit data.
-volatile uint8_t ADCRDY = 0;
 
 /* USER CODE END PM */
 

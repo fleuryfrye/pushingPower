@@ -2,7 +2,8 @@
 #define __SPI_H
 
 
-// SPI Registers and Constants Defined Here
+//Includes
+#include "stm32f3xx_hal.h"
 
 //Variables
 

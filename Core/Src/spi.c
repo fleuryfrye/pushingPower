@@ -1,6 +1,6 @@
 
 #include "spi.h"
-#include "stm32f3xx_hal.h"
+
 
 
 void initSPI(void)
