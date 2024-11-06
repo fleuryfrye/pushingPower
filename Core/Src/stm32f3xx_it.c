@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f3xx_it.h"
+#include "spi.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -222,5 +223,16 @@ void ADC1_2_IRQHandler(void)
 
 	return;
 }
+
+
+void SPI1_IRQHandler(void)
+{
+	if(SPI1->SR & SPI1_RXNE_SET)
+	{
+		//TODO
+
+	}
+}
+
 
 /* USER CODE END 1 */
