@@ -39,6 +39,9 @@ extern volatile uint8_t ADCRDY;
 
 #define ADC_VREF 3.3
 #define ADC_PIEZO_SCALAR 1515.15 //3.3 volts should represent 5000V
+#define ADC_RESOLUTION_BITS 12
+#define ADC_LEVELS ((1 << ADC_RESOLUTION_BITS) - 1)
+
 
 #define ADC_READY_BITMASK (1 << ADC_RDY)
 #define ADC_EOC_BITMASK (1 << ADC_EOC)
