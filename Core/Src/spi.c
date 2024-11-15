@@ -2,6 +2,11 @@
 #include "spi.h"
 
 
+char rxBuffer[RX_BUFFER_LENGTH] = {};
+
+uint8_t msgLength = 0;
+
+
 
 void initSPI(void)
 {
@@ -34,3 +39,12 @@ void initSPI(void)
 
 
 }
+
+
+uint8_t NSSAsserted(void)
+{
+	return (GPIOA->ODR & NSS_ASSERTED);
+}
+
+
+

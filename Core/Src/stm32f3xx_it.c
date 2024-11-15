@@ -26,41 +26,12 @@
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
 
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN TD */
 
-/* USER CODE END TD */
+extern uint8_t msgLength;
+extern char rxBuffer[RX_BUFFER_LENGTH];
 
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
 
-/* USER CODE END PD */
 
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
-/* USER CODE BEGIN PV */
-
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
-/* USER CODE BEGIN PFP */
-
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-
-/* External variables --------------------------------------------------------*/
-
-/* USER CODE BEGIN EV */
-
-/* USER CODE END EV */
 
 /******************************************************************************/
 /*           Cortex-M4 Processor Interruption and Exception Handlers          */
@@ -223,10 +194,21 @@ void ADC1_2_IRQHandler(void)
 
 void SPI1_IRQHandler(void)
 {
-	if(SPI1->SR & SPI1_RXNE_SET)
+	if(SPI1->SR & SPI1_RXNE_SET) //RX Buffer has data that hasn't been read. Test with while and see if it works...
+	{
+		char rxData = (char)(SPI1->DR); //might need to work on this lol
+
+		if(msgLength < RX_BUFFER_LENGTH)
+		{
+			rxBuffer[msgLength++] = rxData;
+		}
+
+	}
+
+	//Maybe we can indicate that a message is ready if the NSS pin is pulled low?
+	if (!NSSAsserted())
 	{
 		//TODO
-
 	}
 }
 

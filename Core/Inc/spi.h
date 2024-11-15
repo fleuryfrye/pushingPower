@@ -15,6 +15,11 @@
 
 
 //Constants
+#define RX_BUFFER_LENGTH 100
+
+#define NSS_PIN 11U //Port A
+#define NSS_ASSERTED (1 << NSS_PIN)
+
 
 
 #define RCC_APB2_ENR_SPIEN 12U
@@ -47,7 +52,14 @@
 #define SPI1_RXNE_SET (1 << SPI1_SR_RXNE)
 
 
+
+
+
+//Functions
 void initSPI(void);
+
+uint8_t NSSAsserted(void);
+
 
 
 
