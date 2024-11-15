@@ -13,6 +13,7 @@
 //Functions
 void chargePiezo(void);
 void dischargePiezo(void);
+void holdPiezoVoltage(void);
 void getPiezoVoltage(int16_t* voltage);
 
 

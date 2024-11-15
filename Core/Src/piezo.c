@@ -28,7 +28,10 @@ void dischargePiezo(void)
 }
 
 
-
+void holdPiezoVoltage(void)
+{
+	GPIOA->BRR = (PIEZO_CHARGE_PIN_HIGH | PIEZO_DISCHARGE_PIN_HIGH); //Turn off charge and discharge transistors.
+}
 
 void getPiezoVoltage(int16_t* voltage)
 {
