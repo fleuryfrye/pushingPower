@@ -30,8 +30,11 @@
 
 void initGPIO(void);
 
+void writePin(GPIO_TypeDef* GPIOX, uint32_t pinNum);
 
+void clearPin(GPIO_TypeDef* GPIOX, uint32_t pinNum);
 
+uint8_t readPin(GPIO_TypeDef* GPIOX, uint32_t pinNum);
 
 
 #endif

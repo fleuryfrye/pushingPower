@@ -16,3 +16,19 @@ void initGPIO(void)
 
 	return;
 }
+
+
+void writePin(GPIO_TypeDef* GPIOX, uint32_t pinNum)
+{
+	GPIOX->BSRR = (1 << pinNum);
+}
+
+void clearPin(GPIO_TypeDef* GPIOX, uint32_t pinNum)
+{
+	GPIOX->BRR = (1 << pinNum);
+}
+
+uint8_t readPin(GPIO_TypeDef* GPIOX, uint32_t pinNum)
+{
+	return (GPIOX->ODR & (1 << pinNum));
+}
