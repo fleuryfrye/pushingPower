@@ -5,32 +5,32 @@
 void chargePiezo(void)
 {
 	//Before activating, make sure that the discharge transistor is turned off!
-	if(GPIOA->ODR & PIEZO_DISCHARGE_PIN_HIGH)
+	if(readPin(GPIOA, PIEZO_DISCHARGE_PIN))
 	{
-		GPIOA->BRR = PIEZO_DISCHARGE_PIN_HIGH; //clear discharge pin bit
+		clearPin(GPIOA, PIEZO_DISCHARGE_PIN);
 	}
 
 	//Activate the transistor to begin charging the piezo.
-	GPIOA->BSRR = PIEZO_CHARGE_PIN_HIGH;
+	writePin(GPIOA, PIEZO_CHARGE_PIN);
 }
 
 void dischargePiezo(void)
 {
 	//Before activating, make sure that the charge transistor is turned off!
-	if(GPIOA->ODR & PIEZO_CHARGE_PIN_HIGH)
+	if(readPin(GPIOA, PIEZO_CHARGE_PIN))
 	{
-		GPIOA->BRR = PIEZO_CHARGE_PIN_HIGH; // clear charge pin bit.
+		clearPin(GPIOA, PIEZO_CHARGE_PIN);
 	}
 
-
 	//Active the transistor to drain the piezo.
-	GPIOA->BSRR = PIEZO_DISCHARGE_PIN_HIGH;
+	writePin(GPIOA, PIEZO_DISCHARGE_PIN);
 }
 
 
 void holdPiezoVoltage(void)
-{
-	GPIOA->BRR = (PIEZO_CHARGE_PIN_HIGH | PIEZO_DISCHARGE_PIN_HIGH); //Turn off charge and discharge transistors.
+{	
+	clearPin(GPIOA, PIEZO_CHARGE_PIN);
+	clearPin(GPIOA, PIEZO_CHARGE_PIN_HIGH);
 }
 
 void getPiezoVoltage(int16_t* voltage)

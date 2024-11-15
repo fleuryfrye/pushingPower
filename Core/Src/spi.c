@@ -43,7 +43,7 @@ void initSPI(void)
 
 uint8_t NSSAsserted(void)
 {
-	return (GPIOA->ODR & NSS_ASSERTED);
+	return (readPin(GPIOA, NSS_PIN));
 }
 
 
