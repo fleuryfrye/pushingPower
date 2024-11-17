@@ -29,6 +29,8 @@ int main(void)
   initADC();
   initSPI();
 
+  int16_t piezoVoltage = 0;
+
 
   while (1) //while loop being used for testing right now.
   {
