@@ -2,7 +2,7 @@
 #include "spi.h"
 
 
-char rxBuffer[RX_BUFFER_LENGTH] = {};
+uint8_t rxBuffer[RX_BUFFER_LENGTH] = {};
 
 uint8_t msgLength = 0;
 
@@ -43,7 +43,7 @@ void initSPI(void)
 
 uint8_t NSSAsserted(void)
 {
-	return (readPin(GPIOA, NSS_PIN));
+	return (!readPin(GPIOA, NSS_PIN));
 }
 
 

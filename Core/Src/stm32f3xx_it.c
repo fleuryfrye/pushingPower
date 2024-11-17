@@ -209,6 +209,7 @@ void SPI1_IRQHandler(void)
 	if (!NSSAsserted())
 	{
 		//TODO
+
 	}
 }
 
