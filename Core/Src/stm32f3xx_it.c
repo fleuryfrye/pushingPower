@@ -28,7 +28,10 @@
 
 
 extern uint8_t msgLength;
-extern char rxBuffer[RX_BUFFER_LENGTH];
+extern uint8_t rxBuffer[RX_BUFFER_LENGTH];
+extern volatile uint8_t messageReceived;
+extern volatile uint8_t processLength;
+extern volatile uint8_t msg[RX_BUFFER_LENGTH];
 
 
 
@@ -196,19 +199,32 @@ void SPI1_IRQHandler(void)
 {
 	if(SPI1->SR & SPI1_RXNE_SET) //RX Buffer has data that hasn't been read. Test with while and see if it works...
 	{
-		char rxData = (char)(SPI1->DR); //might need to work on this lol
+		uint8_t rxData = (uint8_t)(SPI1->DR & 0x00FF); //might need to work on this lol
 
 		if(msgLength < RX_BUFFER_LENGTH)
 		{
 			rxBuffer[msgLength++] = rxData;
 		}
 
+		if(rxData == '\0')
+		{
+			messageReceived = 1;
+		}
+
 	}
 
-	//Maybe we can indicate that a message is ready if the NSS pin is pulled low?
-	if (!NSSAsserted())
+	if (messageReceived)
 	{
-		//TODO
+		//Copy buffer into array
+		processLength = msgLength;
+
+		for(int i = 0; i < msgLength; i++)
+		{
+			msg[i] = rxBuffer[i];
+			rxBuffer[i] = '\0';
+		}
+
+		msgLength = 0;
 
 	}
 }

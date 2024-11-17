@@ -6,6 +6,7 @@
 void SystemClock_Config(void);
 
 
+extern volatile uint8_t messageReceived;
 
 
 int main(void)
@@ -29,13 +30,19 @@ int main(void)
 
   while (1) //while loop being used for testing right now.
   {
-    chargePiezo();
+//    chargePiezo();
 
     getPiezoVoltage(&piezoVoltage); //testing.
 
-    HAL_Delay(1000);
-    dischargePiezo();
-    HAL_Delay(1000);
+//    HAL_Delay(1000);
+//    dischargePiezo();
+//    HAL_Delay(1000);
+
+    if(messageReceived)
+    {
+    	messageReceived = 0;
+    	processMessage();
+    }
 
   }
 }

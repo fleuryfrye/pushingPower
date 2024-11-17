@@ -2,9 +2,14 @@
 #include "spi.h"
 
 
-uint8_t rxBuffer[RX_BUFFER_LENGTH] = {};
+volatile uint8_t rxBuffer[RX_BUFFER_LENGTH] = {};
 
 uint8_t msgLength = 0;
+
+volatile uint8_t messageReceived = 0;
+
+volatile uint8_t processLength = 0;
+volatile uint8_t msg[RX_BUFFER_LENGTH] = {};
 
 
 
@@ -41,9 +46,19 @@ void initSPI(void)
 }
 
 
-uint8_t NSSAsserted(void)
+uint8_t NSSUnasserted(void)
 {
-	return (!readPin(GPIOA, NSS_PIN));
+	return (readPin(GPIOA, NSS_PIN));
+}
+
+void processMessage(void)
+{
+	for(int i = 0; i < processLength; i++)
+	{
+		void* none = msg[i];
+	}
+
+	return;
 }
 
 

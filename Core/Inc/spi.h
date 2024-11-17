@@ -16,7 +16,7 @@
 
 
 //Constants
-#define RX_BUFFER_LENGTH 100
+#define RX_BUFFER_LENGTH 20
 
 #define NSS_PIN 11U //Port A
 #define NSS_ASSERTED (1 << NSS_PIN)
@@ -59,7 +59,9 @@
 //Functions
 void initSPI(void);
 
-uint8_t NSSAsserted(void);
+uint8_t NSSUnasserted(void);
+
+void processMessage(void);
 
 
 
