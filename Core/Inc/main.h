@@ -34,6 +34,9 @@ extern "C" {
 #include "piezo.h"
 
 
+#define TRUE 1U
+#define FALSE 0U
+
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);

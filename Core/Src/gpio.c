@@ -41,5 +41,5 @@ void clearPin(GPIO_TypeDef* GPIOX, uint32_t pinNum)
 
 uint8_t readPin(GPIO_TypeDef* GPIOX, uint32_t pinNum)
 {
-	return ((GPIOX->IDR & (1 << pinNum)) > 0);
+	return ((GPIOX->IDR >> pinNum) & 0x01);
 }

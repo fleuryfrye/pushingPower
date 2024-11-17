@@ -197,9 +197,9 @@ void ADC1_2_IRQHandler(void)
 
 void SPI1_IRQHandler(void)
 {
-	if(SPI1->SR & SPI1_RXNE_SET) //RX Buffer has data that hasn't been read. Test with while and see if it works...
+	while(SPI1->SR & SPI1_RXNE_SET) //RX Buffer has data that hasn't been read. Test with while and see if it works...
 	{
-		uint8_t rxData = (uint8_t)(SPI1->DR & 0x00FF); //might need to work on this lol
+		char rxData = (char)(SPI1->DR & 0x00FF); //might need to work on this lol
 
 		if(msgLength < RX_BUFFER_LENGTH)
 		{
@@ -209,22 +209,16 @@ void SPI1_IRQHandler(void)
 		if(rxData == '\0')
 		{
 			messageReceived = 1;
+			processLength = msgLength;
+			memcpy(msg, rxBuffer, msgLength);
+			for(int i = 0; i < msgLength; i++)
+			{
+				msg[i] = rxBuffer[i];
+				rxBuffer[i] = '\0';
+			}
+
+			msgLength = 0;
 		}
-
-	}
-
-	if (messageReceived)
-	{
-		//Copy buffer into array
-		processLength = msgLength;
-
-		for(int i = 0; i < msgLength; i++)
-		{
-			msg[i] = rxBuffer[i];
-			rxBuffer[i] = '\0';
-		}
-
-		msgLength = 0;
 
 	}
 }

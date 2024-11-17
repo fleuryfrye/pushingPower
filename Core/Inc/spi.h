@@ -62,6 +62,10 @@ void initSPI(void);
 uint8_t NSSUnasserted(void);
 
 void processMessage(void);
+int my_atoi(const char *str);
+
+
+
 
 
 

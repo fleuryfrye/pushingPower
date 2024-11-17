@@ -8,6 +8,9 @@ void SystemClock_Config(void);
 
 extern volatile uint8_t messageReceived;
 
+outputCharacteristics_t requestedWaveform = {OFF, 0, 0, FALSE};
+
+
 
 int main(void)
 {
@@ -26,7 +29,6 @@ int main(void)
   initADC();
   initSPI();
 
-  int16_t piezoVoltage = 0;
 
   while (1) //while loop being used for testing right now.
   {
@@ -42,6 +44,11 @@ int main(void)
     {
     	messageReceived = 0;
     	processMessage();
+    }
+
+    if(requestedWaveform.newRequest)
+    {
+    	//generate signal here.
     }
 
   }

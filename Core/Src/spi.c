@@ -1,15 +1,22 @@
 
 #include "spi.h"
+#include "main.h"
+#include <string.h>
+#include <stdlib.h>
 
 
 volatile uint8_t rxBuffer[RX_BUFFER_LENGTH] = {};
 
 uint8_t msgLength = 0;
 
+
 volatile uint8_t messageReceived = 0;
 
 volatile uint8_t processLength = 0;
-volatile uint8_t msg[RX_BUFFER_LENGTH] = {};
+uint8_t msg[RX_BUFFER_LENGTH] = {};
+
+extern outputCharacteristics_t requestedWaveform;
+
 
 
 
@@ -51,15 +58,82 @@ uint8_t NSSUnasserted(void)
 	return (readPin(GPIOA, NSS_PIN));
 }
 
+
+
 void processMessage(void)
 {
-	for(int i = 0; i < processLength; i++)
-	{
-		void* none = msg[i];
-	}
+	int DCVoltage = 0;
+
+	char* tokenMsg = malloc(processLength * sizeof(char));
+
+	memcpy(tokenMsg, msg, processLength);
+
+
+    char *token = strtok(tokenMsg, ":");
+
+    while (token != NULL)
+    {
+
+    	if(strcmp(token, "VOLT") == 0)
+    	{
+    		token = strtok(NULL, ":");
+    		if(token != NULL)
+    		{
+    			DCVoltage = my_atoi(token);
+    			//Some error checking would be good here.
+    			requestedWaveform.wave = DC;
+    			requestedWaveform.amplitude = DCVoltage;
+    			requestedWaveform.newRequest = TRUE;
+
+    		}
+    	}
+
+
+
+        token = strtok(NULL, ":");
+    }
+
+    for(int i = 0; i < RX_BUFFER_LENGTH; i++)
+    {
+    	msg[i] = '\0';
+    }
+
+    free(tokenMsg);
 
 	return;
 }
 
+
+
+//ATOI algorithm created by ChatGPT. Stdlib atoi() was not working correctly.
+//OpenAI, "Custom C implementation of the atoi algorithm," OpenAI ChatGPT, 2024. [Online]. Available: https://www.openai.com/chatgpt.
+int my_atoi(const char *str) {
+    int result = 0;      // To store the final integer value
+    int sign = 1;        // To handle negative numbers
+    int i = 0;           // Iterator index
+
+    // Step 1: Skip leading whitespace
+    while (str[i] == ' ' || str[i] == '\t' || str[i] == '\n' ||
+           str[i] == '\v' || str[i] == '\f' || str[i] == '\r') {
+        i++;
+    }
+
+    // Step 2: Check for optional '+' or '-' sign
+    if (str[i] == '-') {
+        sign = -1;
+        i++;
+    } else if (str[i] == '+') {
+        i++;
+    }
+
+    // Step 3: Convert digits to integer
+    while (str[i] >= '0' && str[i] <= '9') {
+        result = result * 10 + (str[i] - '0');  // Accumulate the digit
+        i++;
+    }
+
+    // Step 4: Return the result with the correct sign
+    return result * sign;
+}
 
 

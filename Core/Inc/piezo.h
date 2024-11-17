@@ -6,6 +6,30 @@
 #include "adc.h"
 #include"gpio.h"
 
+
+//Types
+
+typedef enum waveform
+{
+	OFF,
+	DC,
+	SINE,
+	SQUARE
+} waveform_t;
+
+typedef struct outputCharacteristics
+{
+	waveform_t wave;
+	uint16_t amplitude;
+	uint16_t frequency;
+	uint8_t newRequest;
+
+} outputCharacteristics_t;
+
+
+
+
+
 //Functions
 void chargePiezo(void);
 void dischargePiezo(void);
