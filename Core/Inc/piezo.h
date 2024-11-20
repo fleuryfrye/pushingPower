@@ -14,7 +14,8 @@ typedef enum waveform
 	OFF,
 	DC,
 	SINE,
-	SQUARE
+	SQUARE,
+	NONE
 } waveform_t;
 
 typedef struct outputCharacteristics

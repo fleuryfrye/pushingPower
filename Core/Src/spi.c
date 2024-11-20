@@ -67,6 +67,11 @@ uint8_t validRequest(outputCharacteristics_t requestedWaveform)
 	uint16_t requestedAmplitude = requestedWaveform.amplitude;
 	uint16_t requestedFrequency = requestedWaveform.frequency;
 
+	if(requestedWaveform.wave == NONE)
+	{
+		valid &= 0;
+	}
+
 	if(requestedAmplitude < 0 || requestedAmplitude > 5000)
 	{
 		valid &= 0;
@@ -83,7 +88,7 @@ uint8_t validRequest(outputCharacteristics_t requestedWaveform)
 
 void processMessage(void)
 {
-	outputCharacteristics_t requestedWaveform = {OFF, 0, 0, FALSE};
+	outputCharacteristics_t requestedWaveform = {NONE, 0, 0, FALSE};
 
 	char* tokenMsg = (char*)malloc(processLength * sizeof(char));
 	memcpy(tokenMsg, msg, processLength);
