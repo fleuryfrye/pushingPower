@@ -15,7 +15,7 @@ volatile uint8_t messageReceived = 0;
 volatile uint8_t processLength = 0;
 uint8_t msg[RX_BUFFER_LENGTH] = {};
 
-extern outputCharacteristics_t requestedWaveform;
+extern outputCharacteristics_t waveform;
 
 
 
@@ -60,50 +60,97 @@ uint8_t NSSUnasserted(void)
 
 
 
+uint8_t validRequest(outputCharacteristics_t requestedWaveform)
+{
+	uint8_t valid = 1;
+
+	uint16_t requestedAmplitude = requestedWaveform.amplitude;
+	uint16_t requestedFrequency = requestedWaveform.frequency;
+
+	if(requestedAmplitude < 0 || requestedAmplitude > 5000)
+	{
+		valid &= 0;
+	}
+
+	if(requestedFrequency < 0 || requestedFrequency > 20000)
+	{
+		valid &= 0;
+	}
+
+	return valid;
+
+}
+
 void processMessage(void)
 {
-	int DCVoltage = 0;
+	outputCharacteristics_t requestedWaveform = {OFF, 0, 0, FALSE};
 
-	char* tokenMsg = malloc(processLength * sizeof(char));
-
+	char* tokenMsg = (char*)malloc(processLength * sizeof(char));
 	memcpy(tokenMsg, msg, processLength);
-
 
     char *token = strtok(tokenMsg, ":");
 
-    while (token != NULL)
+    if(token != NULL)
     {
-
     	if(strcmp(token, "VOLT") == 0)
     	{
-    		token = strtok(NULL, ":");
+			requestedWaveform.wave = DC;
+			token = strtok(NULL, ":");
     		if(token != NULL)
     		{
-    			DCVoltage = my_atoi(token);
-    			//Some error checking would be good here.
-    			requestedWaveform.wave = DC;
-    			requestedWaveform.amplitude = DCVoltage;
-    			requestedWaveform.newRequest = TRUE;
-
+    			requestedWaveform.amplitude = my_atoi(token);
     		}
     	}
 
+		else if(strcmp(token, "SIN") == 0)
+		{
+			requestedWaveform.wave = SINE;
+			token = strtok(NULL, ":");
+    		if(token != NULL)
+    		{
+    			requestedWaveform.amplitude = my_atoi(token);
+				token = strtok(NULL, ":");
+				if(token != NULL)
+				{
+					requestedWaveform.frequency = my_atoi(token);
+				}
+    		}
+		}
 
+		else if(strcmp(token, "RCT") == 0)
+		{
+			requestedWaveform.wave = SQUARE;
+			token = strtok(NULL, ":");
+    		if(token != NULL)
+    		{
+    			requestedWaveform.amplitude = my_atoi(token);
+				token = strtok(NULL, ":");
+				if(token != NULL)
+				{
+					requestedWaveform.frequency = my_atoi(token);
+				}
+    		}
+		}
 
-        token = strtok(NULL, ":");
+		else if(strcmp(token, "OFF") == 0)
+		{
+			requestedWaveform.wave = OFF;
+			requestedWaveform.amplitude = 0;
+			requestedWaveform.frequency = 0;
+		}
+
     }
 
-    for(int i = 0; i < RX_BUFFER_LENGTH; i++)
-    {
-    	msg[i] = '\0';
-    }
+
+	if(validRequest(requestedWaveform))
+	{
+		waveform = requestedWaveform;
+		waveform.newRequest = TRUE;
+	}
 
     free(tokenMsg);
-
 	return;
 }
-
-
 
 //ATOI algorithm created by ChatGPT. Stdlib atoi() was not working correctly.
 //OpenAI, "Custom C implementation of the atoi algorithm," OpenAI ChatGPT, 2024. [Online]. Available: https://www.openai.com/chatgpt.

@@ -8,7 +8,7 @@ void SystemClock_Config(void);
 
 extern volatile uint8_t messageReceived;
 
-outputCharacteristics_t requestedWaveform = {OFF, 0, 0, FALSE};
+outputCharacteristics_t waveform = {OFF, 0, 0, FALSE};
 
 
 
@@ -48,7 +48,7 @@ int main(void)
     	processMessage();
     }
 
-    if(requestedWaveform.newRequest)
+    if(waveform.newRequest)
     {
     	//generate signal here.
     }
