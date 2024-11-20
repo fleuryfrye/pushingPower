@@ -10,7 +10,7 @@ extern volatile uint8_t messageReceived;
 
 outputCharacteristics_t waveform = {OFF, 0, 0, FALSE};
 
-
+uint8_t isSpiOn;
 
 int main(void)
 {
@@ -28,8 +28,10 @@ int main(void)
   initGPIO();
   initADC();
   initSPI();
+  isSpiOn = 1;
 
   int16_t piezoVoltage = 0;
+  volatile uint32_t timeout = 0;
 
 
   while (1) //while loop being used for testing right now.
@@ -52,6 +54,37 @@ int main(void)
     {
     	//generate signal here.
     }
+
+
+    //Need to be able to detect if controller disconnected.
+    //This works, but we need to make this more robust
+    //Detect if NSS is high for 5 seconds, if so turn off SPI
+    // Detect if controller connected, re-enable SPI
+    //EXT Interrupt of NSS pin and a timer preferred.
+    //EXT Higher Interrupt Priority than SPI
+	if(isSpiOn && NSSUnasserted())
+	{
+		while(NSSUnasserted())
+		{
+			if(timeout++ > 60000)
+			{
+				SPI1->CR1 &= ~(SPI_ENABLE);
+				isSpiOn = 0;
+				break;
+			}
+		}
+
+		timeout = 0;
+
+
+
+	}
+
+	if(!isSpiOn && !NSSUnasserted())
+	{
+		SPI1->CR1 |= SPI_ENABLE;
+		isSpiOn = 1;
+	}
 
   }
 }

@@ -13,6 +13,7 @@ void initGPIO(void)
 	GPIOA->MODER |= (ALT_FUNCT_MODE << (SPI_NSS_PIN * 2));
 
 	GPIOA->AFR[1] |= (SPI_NSS_AF);
+	GPIOA->PUPDR |= (1 << SPI_NSS_PIN * 2);
 
 
 	GPIOA->OSPEEDR |= (HIGH_SPEED_OUTPUT << (PIEZO_CHARGE_PIN * 2));
@@ -41,5 +42,5 @@ void clearPin(GPIO_TypeDef* GPIOX, uint32_t pinNum)
 
 uint8_t readPin(GPIO_TypeDef* GPIOX, uint32_t pinNum)
 {
-	return ((GPIOX->IDR >> pinNum) & 0x01);
+	return ((GPIOX->IDR >> pinNum) & 0x1);
 }
