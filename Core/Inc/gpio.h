@@ -11,6 +11,14 @@
 
 
 //Piezo, ADC, and SPI NSS pins are on Port A
+
+
+// On Nucleo Board:
+
+//CHARGE PIN: D0 (PA10)
+//DISCHARGE PIN: D1 (PA9)
+
+
 #define PIEZO_CHARGE_PIN 9U
 #define PIEZO_DISCHARGE_PIN 10U
 #define SPI_NSS_PIN 11U

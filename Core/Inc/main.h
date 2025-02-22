@@ -36,6 +36,7 @@ extern "C" {
 
 #define TRUE 1U
 #define FALSE 0U
+#define ERROR -1
 
 
 /* Exported functions prototypes ---------------------------------------------*/

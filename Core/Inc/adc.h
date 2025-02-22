@@ -12,6 +12,10 @@ extern volatile uint8_t ADCRDY;
 
 
 //Constants
+
+//ADC is on A0 on the nucleo board (PA0)
+
+
 #define ADC_PIN 0U
 #define ADC_INPUT_MODE 3U
 #define ADC_CLK_EN 28U
