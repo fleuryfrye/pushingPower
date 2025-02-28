@@ -30,7 +30,7 @@ void dischargePiezo(void)
 void holdPiezoVoltage(void)
 {	
 	clearPin(GPIOA, PIEZO_CHARGE_PIN);
-	clearPin(GPIOA, PIEZO_CHARGE_PIN_HIGH);
+	clearPin(GPIOA, PIEZO_DISCHARGE_PIN);
 }
 
 void getPiezoVoltage(int16_t* voltage)
