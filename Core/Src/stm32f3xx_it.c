@@ -22,6 +22,8 @@
 #include "stm32f3xx_it.h"
 #include "spi.h"
 #include "adc.h"
+#include "timer.h"
+#include <string.h>
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -32,6 +34,9 @@ extern uint8_t rxBuffer[RX_BUFFER_LENGTH];
 extern volatile uint8_t messageReceived;
 extern volatile uint8_t processLength;
 extern volatile uint8_t msg[RX_BUFFER_LENGTH];
+
+extern volatile timerStatus_t g_timer;
+
 
 
 
@@ -197,12 +202,13 @@ void ADC1_2_IRQHandler(void)
 
 void SPI1_IRQHandler(void)
 {
+	uint8_t rxData;
+
 	if(SPI1->SR & SPI1_RXNE_SET) //RX Buffer has data that hasn't been read. Test with while and see if it works...
 	{
-		char rxData = (uint8_t)(SPI1->DR & 0x00FF);
-
 		if(msgLength < RX_BUFFER_LENGTH)
 		{
+			rxData = (uint8_t)(SPI1->DR & 0x00FF);
 			rxBuffer[msgLength++] = rxData;
 		}
 		else
@@ -215,15 +221,22 @@ void SPI1_IRQHandler(void)
 			messageReceived = 1;
 			processLength = msgLength;
 			memcpy(msg, rxBuffer, msgLength);
-			for(int i = 0; i < msgLength; i++)
-			{
-				msg[i] = rxBuffer[i];
-				rxBuffer[i] = '\0';
-			}
-
+			memset(rxBuffer, 0, msgLength);
 			msgLength = 0;
 		}
 
+	}
+
+}
+
+
+void TIM2_IRQHandler(void)
+{
+	if(TIM2->SR & TIM2_SR_UIF)
+	{
+		g_timer = TIMER_EXPIRED;
+
+		TIM2->SR &= ~TIM2_SR_UIF;
 	}
 
 }
