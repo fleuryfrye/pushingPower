@@ -12,6 +12,173 @@ outputCharacteristics_t waveform = {OFF, 0, 0, FALSE};
 
 uint8_t isSpiOn;
 
+
+
+
+
+
+void setVoltage(int16_t requestedVoltage){
+	int16_t currentVolt;
+
+	uint8_t confirmFlag = 0;
+
+
+	while(1){
+		getPiezoVoltage(&currentVolt);
+
+		//HAL_Delay(25);
+
+		if (currentVolt <= (requestedVoltage * 0.9))
+		{
+			chargePiezo();
+			//HAL_Delay(1);
+
+			setTimer(50);
+
+			waitForTimer();
+
+			confirmFlag = 0;
+		}
+
+		else if (currentVolt >= (requestedVoltage * 1.1))
+		{
+			dischargePiezo();
+			//HAL_Delay(1);
+
+			setTimer(50);
+
+			waitForTimer();
+
+
+			confirmFlag = 0;
+		}
+
+		else
+		{
+			holdPiezoVoltage();
+			//HAL_Delay(1);
+
+			setTimer(50);
+
+			waitForTimer();
+			confirmFlag++;
+		}
+
+		if(confirmFlag > 1)
+		{
+			getPiezoVoltage(&currentVolt);
+
+			break;
+		}
+
+
+	}
+}
+
+
+
+
+
+void pulse(void)
+{
+
+
+	setVoltage(5000);
+	dischargePiezo();
+
+
+
+}
+
+
+
+
+
+
+
+void rectangle(uint16_t amplitude, uint16_t frequency)
+{
+
+	double period = 1.0 / frequency;
+
+	double holdTime = period / 2.0;
+
+	while(!(waveform.newRequest))
+	{
+
+		//chargePiezo();
+		setVoltage(amplitude);
+
+
+
+		setTimer(getMicroseconds(holdTime));
+
+		waitForTimer();
+
+		dischargePiezo();
+
+		setTimer(getMicroseconds(holdTime));
+
+		waitForTimer();
+
+
+	}
+
+
+
+}
+
+
+
+void sinusoid(void)
+{
+	  //Sine wave???
+
+	  int volt = 100;
+	  int up = 1;
+
+	  while(!(waveform.newRequest))
+	  {
+
+		setVoltage(volt);
+
+		setTimer(10);
+		waitForTimer();
+
+		if(volt < 5000 && up)
+		{
+			volt += 200;
+
+			if(volt >= 5000)
+			{
+				up = 0;
+				volt = 5000;
+			}
+
+		}
+
+
+
+		if(volt > 0 && !up)
+		{
+			volt -= 200;
+
+			if(volt <= 0)
+			{
+				up = 1;
+				volt = 100;
+			}
+		}
+
+	  }
+
+}
+
+
+
+
+
+
 int main(void)
 {
 
@@ -20,7 +187,9 @@ int main(void)
 
 
   /* Configure the system clock */
-  SystemClock_Config();
+  //SystemClock_Config();
+
+  initRCC();
 
   __enable_irq();
 
@@ -28,21 +197,17 @@ int main(void)
   initGPIO();
   initADC();
   initSPI();
+  initTimer();
   isSpiOn = 1;
 
   int16_t piezoVoltage = 0;
-  volatile uint32_t timeout = 0;
+//  volatile uint32_t timeout = 0;
 
 
   while (1) //while loop being used for testing right now.
   {
-//    chargePiezo();
 
     getPiezoVoltage(&piezoVoltage); //testing.
-
-//    HAL_Delay(1000);
-//    dischargePiezo();
-//    HAL_Delay(1000);
 
     if(messageReceived)
     {
@@ -62,29 +227,29 @@ int main(void)
     // Detect if controller connected, re-enable SPI
     //EXT Interrupt of NSS pin and a timer preferred.
     //EXT Higher Interrupt Priority than SPI
-	if(isSpiOn && NSSUnasserted())
-	{
-		while(NSSUnasserted())
-		{
-			if(timeout++ > 60000)
-			{
-				SPI1->CR1 &= ~(SPI_ENABLE);
-				isSpiOn = 0;
-				break;
-			}
-		}
-
-		timeout = 0;
-
-
-
-	}
-
-	if(!isSpiOn && !NSSUnasserted())
-	{
-		SPI1->CR1 |= SPI_ENABLE;
-		isSpiOn = 1;
-	}
+//	if(isSpiOn && NSSUnasserted())
+//	{
+//		while(NSSUnasserted())
+//		{db   1a
+//			if(timeout++ > 60000)
+//			{
+//				SPI1->CR1 &= ~(SPI_ENABLE);
+//				isSpiOn = 0;
+//				break;
+//			}
+//		}
+//
+//		timeout = 0;
+//
+//
+//
+//	}
+//
+//	if(!isSpiOn && !NSSUnasserted())
+//	{
+//		SPI1->CR1 |= SPI_ENABLE;
+//		isSpiOn = 1;
+//	}
 
   }
 }

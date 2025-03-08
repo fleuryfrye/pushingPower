@@ -32,6 +32,8 @@ extern "C" {
 #include "gpio.h"
 #include "adc.h"
 #include "piezo.h"
+#include "rcc.h"
+#include "timer.h"
 
 
 #define TRUE 1U
