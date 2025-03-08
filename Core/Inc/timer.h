@@ -17,7 +17,7 @@
 
 #define TIM2_SR_UIF (1 << 0)
 
-#define TIM2_CLK_INT_FREQ 8000000
+#define TIM2_CLK_INT_FREQ 64000000
 //#define TIM2_PRESCALER 0
 
 #define TIM2_CLK_FREQ (TIM2_CLK_INT_FREQ / 1)
@@ -38,6 +38,12 @@ int8_t hasTimerExpired(void);
 void turnTimerOff(void);
 
 uint32_t getTicks(uint32_t us);
+
+static inline uint32_t getMicroseconds(double seconds)
+{
+
+	return (seconds * 1000000);
+}
 
 
 
