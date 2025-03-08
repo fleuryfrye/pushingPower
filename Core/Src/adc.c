@@ -55,6 +55,21 @@ void initADC(void)
 	ADC1->CFGR |= (1 << ADC1_CFGR_OVRMOD); // if sample is missed, overwrite with newest
 
 
+
+
+	//8-bit set up for testing purposes
+
+	//Make sure to edit ADC_RESOLUTION_BITs macro as well
+//
+//	ADC1->CFGR |= ADC_8_BIT_RES_BITMASK;
+//
+
+	//end of 8-bit setup
+
+	ADC1->SMPR1 |= ADC_SAMPLING_RATE_BITMASK;
+
+
+
 	ADC1->CR |= (1 << ADC1_CR_EN); //Enable the ADC and wait for it to be ready.
 
 	NVIC_EnableIRQ(ADC1_2_IRQn); //Register the interrupt with NVIC

@@ -193,7 +193,9 @@ void ADC1_2_IRQHandler(void)
 
 	if(ADC1->ISR & ADC_EOC_BITMASK)
 	{
-		adcData = (int16_t)(ADC1->DR & 0x0000FFFF); //EOC flag is cleared by hardware after reading.
+		adcData = (int16_t)(ADC1->DR & 0x0000FFFF);
+
+		ADC1->ISR &= ~(ADC_EOC_BITMASK);
 	}
 
 	return;
