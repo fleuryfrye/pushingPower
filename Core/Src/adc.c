@@ -61,7 +61,7 @@ void initADC(void)
 
 	//DMA Setup
 
-	setupDMA();
+	setupDMAChannel1();
 
 
 
@@ -97,7 +97,7 @@ void initADC(void)
 }
 
 
-void setupDMA(void)
+void setupDMAChannel1(void)
 {
 
 	RCC->AHBENR |= RCC_DMA1_EN;
@@ -105,9 +105,7 @@ void setupDMA(void)
 
 	DMA1_Channel1->CNDTR = ADC_CHANNELS;
 
-
-	//DMA1_Channel1->CPAR = &(ADC1->DR);
-	DMA1_Channel1->CPAR = ADC1_BASE + 0x40;
+	DMA1_Channel1->CPAR = ADC1_BASE + ADC_DATA_REG_OFFSET;
 	DMA1_Channel1->CMAR = &adcData;
 
 	DMA1_Channel1->CCR |= (DMA_CCR1);

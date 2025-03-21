@@ -82,6 +82,8 @@
 
 #define ADC_SAMPLING_RATE_BITMASK (SAMPLING_RATE_60_CYCLES << ADC1_SMP3 | SAMPLING_RATE_60_CYCLES << ADC1_SMP1)
 
+#define ADC_DATA_REG_OFFSET 0x40
+
 
 //DMA Setup
 
@@ -133,7 +135,7 @@ extern volatile uint8_t ADCRDY;
 
 void initADC(void);
 
-void setupDMA(void);
+void setupDMAChannel1(void);
 
 
 
