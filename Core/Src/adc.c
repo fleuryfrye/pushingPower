@@ -115,3 +115,16 @@ void setupDMAChannel1(void)
 
 }
 
+
+void getBankVoltage(int16_t* voltage)
+{
+
+	double rawvoltage =  ((adcData[BANK_INDEX] * ADC_VREF) / ADC_LEVELS);
+
+	*voltage = (int16_t)(rawvoltage * ADC_PIEZO_SCALAR);
+
+
+
+}
+
+

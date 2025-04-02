@@ -36,6 +36,8 @@ extern volatile uint8_t processLength;
 extern volatile uint8_t msg[RX_BUFFER_LENGTH];
 
 extern volatile timerStatus_t g_timer;
+extern volatile timerStatus_t g_timer3;
+
 
 
 
@@ -227,13 +229,25 @@ void SPI1_IRQHandler(void)
 
 void TIM2_IRQHandler(void)
 {
-	if(TIM2->SR & TIM2_SR_UIF)
+	if(TIM2->SR & TIMx_SR_UIF)
 	{
 		g_timer = TIMER_EXPIRED;
 
-		TIM2->SR &= ~TIM2_SR_UIF;
+		TIM2->SR &= ~TIMx_SR_UIF;
 	}
 
+}
+
+
+
+void TIM3_IRQHandler(void)
+{
+	if(TIM3->SR & TIMx_SR_UIF)
+	{
+		g_timer3 = TIMER_EXPIRED;
+
+		TIM3->SR &= ~TIMx_SR_UIF;
+	}
 }
 
 

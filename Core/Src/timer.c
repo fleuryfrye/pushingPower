@@ -5,6 +5,14 @@
 
 volatile timerStatus_t g_timer;
 
+volatile timerStatus_t g_timer3;
+
+
+extern volatile uint8_t messageReceived;
+
+
+extern outputCharacteristics_t waveform;
+
 
 
 // TIM2 is a 32-bit timer that is configured to count up until it reaches ARR.
@@ -14,14 +22,18 @@ void initTimer(void)
 
 	RCC->APB1ENR |= (APB1_TIM2_EN);
 
-	TIM2->CR1 |= (TIM2_CR1_URS);
+	TIM2->CR1 |= (TIMx_CR1_URS);
 
-	TIM2->DIER |= (TIM2_DIER_UIE);
+	TIM2->DIER |= (TIMx_DIER_UIE);
 
 
-	//TIM2->PSC = TIM2_PRESCALER;
+	//TIM2->PSC = TIMx_PRESCALER;
 
 	TIM2->ARR = 0; //ARR used for comparison. When count > ARR value, interrupt is triggered.
+
+	//STM32F3 has a bug where interrupt flag is set after setting CNT and PSC. Forcing an interrupt and clearing it solves this issue.
+	TIM2->EGR |= TIMx_EGR_UG;
+	TIM2->SR &= ~(TIMx_SR_UIF);
 
 	NVIC_EnableIRQ(TIM2_IRQn);
 
@@ -31,12 +43,57 @@ void initTimer(void)
 }
 
 
+void initTimer3(void)
+{
+
+	RCC->APB1ENR |= APB1_TIM3_EN;
+
+	TIM3->CR1 |= (TIMx_CR1_URS);
+
+	TIM3->DIER |= (TIMx_DIER_UIE);
+
+	TIM3->PSC = TIM3_PSC;
+
+
+	TIM3->ARR = 0; //ARR used for comparison. When count > ARR value, interrupt is triggered.
+
+
+
+	//STM32F3 has a bug where interrupt flag is set after setting CNT and PSC. Forcing an interrupt and clearing it solves this issue.
+	TIM3->EGR |= TIMx_EGR_UG;
+	TIM3->SR &= ~(TIMx_SR_UIF);
+
+	NVIC_EnableIRQ(TIM3_IRQn);
+
+	//turnTimerOff();
+
+	g_timer3 = TIMER_OFF;
+
+
+
+
+}
+
+
+
+void turnTimer3Off(void)
+{
+	TIM3->CR1 &= ~TIMx_CR1_CEN; //turn timer off
+	TIM3->CNT = 0; //reset count back to 0
+
+	g_timer3 = TIMER_OFF;
+}
+
+
+
+
+
 
 //Turns timer off and resets count back to 0. Then sets timer status to off.
 void turnTimerOff(void)
 {
 
-	TIM2->CR1 &= ~TIM2_CR1_CEN; //turn timer off
+	TIM2->CR1 &= ~TIMx_CR1_CEN; //turn timer off
 	TIM2->CNT = 0; //reset count back to 0
 
 	g_timer = TIMER_OFF;
@@ -56,6 +113,39 @@ int8_t waitForTimer(void)
 
 	return 1;
 }
+
+
+//wait() is a blocking function that waits for the timer to expire OR exits upon a valid message request being received.
+//Recommend to use this when waiting during signal generation.
+
+// If timer expires, we return EXIT_SUCCESS. If a valid message is received, EXIT_NEWREQUEST is generated.
+
+returnStatus_t wait(uint32_t us)
+{
+
+	setTimer(us);
+
+	while(!hasTimerExpired())
+	{
+
+		if(messageReceived)
+		{
+			messageReceived = 0;
+    		processMessage();
+		}
+
+		if(waveform.newRequest)
+		{
+			turnTimerOff();
+			return EXIT_NEWREQUEST;
+		}
+
+	}
+
+	return EXIT_SUCCESS;
+
+}
+
 
 
 
@@ -82,6 +172,24 @@ int8_t hasTimerExpired(void)
 	}
 }
 
+int8_t hasTimer3Expired(void)
+{
+	switch(g_timer3)
+	{
+		case(TIMER_OFF): return ERROR;
+		case(TIMER_ACTIVE): return FALSE;
+		case(TIMER_EXPIRED):
+		{
+			turnTimer3Off();
+			return TRUE;
+		}
+
+		default: return ERROR;
+
+	}
+}
+
+
 
 
 
@@ -89,16 +197,23 @@ int8_t hasTimerExpired(void)
 
 void setTimer(uint32_t us)
 {
+
+	if(g_timer == TIMER_ACTIVE)
+	{
+		turnTimerOff();
+	}
+
+
 	TIM2->CNT = 0; //reset ticks to 0
 
 	uint32_t waitTime = getTicks(us);
 
 	TIM2->ARR = waitTime;
 
-	//TIM2->EGR |= TIM2_EGR_UG;
+	//TIM2->EGR |= TIMx_EGR_UG;
 
 
-	TIM2->CR1 |= TIM2_CR1_CEN; //start timer
+	TIM2->CR1 |= TIMx_CR1_CEN; //start timer
 
 	g_timer = TIMER_ACTIVE;
 
@@ -107,11 +222,45 @@ void setTimer(uint32_t us)
 }
 
 
+void setTimer3(uint16_t ms)
+{
+
+	if(g_timer3 == TIMER_ACTIVE)
+	{
+		turnTimer3Off();
+	}
+
+
+	TIM3->CNT = 0; //reset ticks to 0
+
+	uint16_t waitTime = getTimer3Ticks(ms);
+
+	TIM3->ARR = waitTime;
+
+	TIM3->CR1 |= TIMx_CR1_CEN; //start timer
+
+	g_timer3 = TIMER_ACTIVE;
+
+}
+
+
+
 uint32_t getTicks(uint32_t us)
 {
 
-	return (    TIM2_CLK_FREQ *  ((long)(us) / 1000000.0)    );
+	return (    TIMx_CLK_FREQ *  ((double)(us) / 1000000.0)    );
 
+
+
+}
+
+uint16_t getTimer3Ticks(uint16_t ms)
+{
+
+	uint32_t ticks = TIM3_CLK_FREQ * ((double)(ms) / 1000);
+
+
+	return (  (ticks > 0xFFFF) ? 0xFFFF  : (uint16_t)(ticks)  );
 
 
 }

@@ -17,13 +17,16 @@ uint8_t isSpiOn;
 
 
 
-void setVoltage(int16_t requestedVoltage){
+returnStatus_t setVoltage(int16_t requestedVoltage){
 	int16_t currentVolt;
 
 	uint8_t confirmFlag = 0;
 
 
+	returnStatus_t sts;
+
 	while(1){
+
 		getPiezoVoltage(&currentVolt);
 
 		//HAL_Delay(25);
@@ -31,11 +34,10 @@ void setVoltage(int16_t requestedVoltage){
 		if (currentVolt <= (requestedVoltage * 0.9))
 		{
 			chargePiezo();
-			//HAL_Delay(1);
 
-			setTimer(50);
+			// setTimer(50);
 
-			waitForTimer();
+			// waitForTimer();
 
 			confirmFlag = 0;
 		}
@@ -43,11 +45,10 @@ void setVoltage(int16_t requestedVoltage){
 		else if (currentVolt >= (requestedVoltage * 1.1))
 		{
 			dischargePiezo();
-			//HAL_Delay(1);
 
-			setTimer(50);
+			// setTimer(50);
 
-			waitForTimer();
+			// waitForTimer();
 
 
 			confirmFlag = 0;
@@ -56,12 +57,22 @@ void setVoltage(int16_t requestedVoltage){
 		else
 		{
 			holdPiezoVoltage();
-			//HAL_Delay(1);
 
-			setTimer(50);
+			// setTimer(50);
 
-			waitForTimer();
+			// waitForTimer();
+
+
 			confirmFlag++;
+		}
+
+
+		sts = wait(50);
+
+		if(sts > 0)
+		{
+			holdPiezoVoltage();
+			return sts;
 		}
 
 		if(confirmFlag > 1)
@@ -73,18 +84,31 @@ void setVoltage(int16_t requestedVoltage){
 
 
 	}
+
+	return EXIT_SUCCESS;
 }
 
 
 
 
 
-void pulse(void)
+returnStatus_t pulse(void)
 {
 
+	returnStatus_t sts;
 
-	setVoltage(5000);
+
+	sts = setVoltage(5000);
+
+	if(sts > 0)
+	{
+		return sts;
+	}
+
+
 	dischargePiezo();
+
+	return EXIT_SUCCESS;
 
 
 
@@ -96,35 +120,39 @@ void pulse(void)
 
 
 
-void rectangle(uint16_t amplitude, uint16_t frequency)
+returnStatus_t rectangle(uint16_t amplitude, uint16_t frequency)
 {
 
 	double period = 1.0 / frequency;
 
 	double holdTime = period / 2.0;
 
-	while(!(waveform.newRequest))
+	returnStatus_t sts;
+
+	sts = setVoltage(amplitude);
+
+	if(sts > 0)
 	{
-
-		//chargePiezo();
-		setVoltage(amplitude);
-
-
-
-		setTimer(getMicroseconds(holdTime));
-
-		waitForTimer();
-
-		dischargePiezo();
-
-		setTimer(getMicroseconds(holdTime));
-
-		waitForTimer();
-
-
+		return sts;
 	}
 
+	sts = wait(getMicroseconds(holdTime));
 
+	if(sts > 0)
+	{
+		return sts;
+	}
+
+	dischargePiezo();
+
+	sts = wait(getMicroseconds(holdTime));
+
+	if(sts > 0)
+	{
+		return sts;
+	}
+
+	return EXIT_SUCCESS;
 
 }
 
@@ -137,7 +165,7 @@ void sinusoid(void)
 	  int volt = 100;
 	  int up = 1;
 
-	  while(!(waveform.newRequest))
+	  while(!messageReceived) // work on this
 	  {
 
 		setVoltage(volt);
@@ -147,7 +175,15 @@ void sinusoid(void)
 
 		if(volt < 5000 && up)
 		{
-			volt += 200;
+			if(volt <= 4000)
+			{
+				volt += 50;
+			}
+			else
+			{
+				volt += 25;
+			}
+
 
 			if(volt >= 5000)
 			{
@@ -161,7 +197,15 @@ void sinusoid(void)
 
 		if(volt > 0 && !up)
 		{
-			volt -= 200;
+			if(volt > 4000)
+			{
+				volt -= 25;
+			}
+			else
+			{
+				volt -= 50;
+			}
+
 
 			if(volt <= 0)
 			{
@@ -175,7 +219,55 @@ void sinusoid(void)
 }
 
 
+returnStatus_t newsinusoid(uint16_t amplitude)
+{
 
+	float sineValues[8] = {0, 0.5, 0.707, 0.866, 1, 0.866, 0.707, 0.5};
+
+	returnStatus_t sts;
+
+		for(int i = 0; i < 9; i++)
+		{
+			uint16_t voltage = amplitude * sineValues[i];
+
+			int count = 0;
+
+			while(count++ < 10)
+			{
+				if(voltage == 0)
+				{
+					dischargePiezo();
+				}
+				else
+				{
+					 sts = setVoltage(voltage);
+					 if(sts > 0)
+					 {
+						return sts;
+					 }
+				}
+
+				// setTimer(5000);
+				// waitForTimer();
+
+
+				sts = wait(5000);
+
+				if(sts > 0)
+				{
+					return sts;
+				}
+
+
+			}
+
+		}
+
+
+	
+	return EXIT_SUCCESS;
+
+}
 
 
 
@@ -198,16 +290,14 @@ int main(void)
   initADC();
   initSPI();
   initTimer();
+  initTimer3();
   isSpiOn = 1;
 
   int16_t piezoVoltage = 0;
-//  volatile uint32_t timeout = 0;
 
 
   while (1) //while loop being used for testing right now.
   {
-
-    getPiezoVoltage(&piezoVoltage); //testing.
 
 
     if(messageReceived)
@@ -218,7 +308,24 @@ int main(void)
 
     if(waveform.newRequest)
     {
+		waveform.newRequest = 0;
+
     	//generate signal here.
+		if(waveform.wave == SINE)
+		{
+			while(newsinusoid(waveform.amplitude) > 0);
+		}
+		else if (waveform.wave == SQUARE)
+		{
+			while(rectangle(waveform.amplitude, waveform.frequency) > 0);
+		}
+		else if (waveform.wave == DC)
+		{
+			while(setVoltage(waveform.amplitude) > 0);
+		}
+
+
+		
     }
 
 
