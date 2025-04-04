@@ -33,7 +33,7 @@
 
 typedef enum timerStatus {TIMER_OFF, TIMER_ACTIVE, TIMER_EXPIRED} timerStatus_t;
 
-typedef enum returnStatus {EXIT_SUCCESS, EXIT_NEWREQUEST} returnStatus_t;
+typedef enum returnStatus {EXIT_SUCCESS, EXIT_NEWREQUEST, EXIT_TIMEOUT} returnStatus_t;
 
 
 

@@ -25,18 +25,18 @@ returnStatus_t setVoltage(int16_t requestedVoltage){
 
 	returnStatus_t sts;
 
-	while(1){
+	while(!waveform.newRequest){
 
 		getPiezoVoltage(&currentVolt);
 
-		//HAL_Delay(25);
+		//HAL_Delay(25);swaā
 
 		if (currentVolt <= (requestedVoltage * 0.9))
 		{
 			chargePiezo();
 
 			// setTimer(50);
-
+																																					
 			// waitForTimer();
 
 			confirmFlag = 0;
@@ -299,6 +299,27 @@ int main(void)
   while (1) //while loop being used for testing right now.
   {
 
+//
+//	  int count = 0;
+//	  int totalCount = 0;
+//
+//	  while(1)
+//	  {
+//		  if(messageReceived)
+//		  {
+//			  messageReceived = 0;
+//			  processMessage();
+//			  ++totalCount;
+//		  }
+//
+//		  if(waveform.newRequest)
+//		  {
+//			  waveform.newRequest = 0;
+//			  ++count;
+//		  }
+//	  }
+
+
 
     if(messageReceived)
     {
@@ -313,15 +334,15 @@ int main(void)
     	//generate signal here.
 		if(waveform.wave == SINE)
 		{
-			while(newsinusoid(waveform.amplitude) > 0);
+			while(newsinusoid(waveform.amplitude) == EXIT_SUCCESS);
 		}
 		else if (waveform.wave == SQUARE)
 		{
-			while(rectangle(waveform.amplitude, waveform.frequency) > 0);
+			while(rectangle(waveform.amplitude, waveform.frequency) == EXIT_SUCCESS);
 		}
 		else if (waveform.wave == DC)
 		{
-			while(setVoltage(waveform.amplitude) > 0);
+			while(setVoltage(waveform.amplitude) == EXIT_SUCCESS);
 		}
 
 
