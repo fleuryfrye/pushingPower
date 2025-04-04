@@ -67,7 +67,7 @@ returnStatus_t setVoltage(int16_t requestedVoltage){
 		}
 
 
-		sts = wait(50);
+		sts = wait(10);
 
 		if(sts > 0)
 		{
@@ -157,72 +157,13 @@ returnStatus_t rectangle(uint16_t amplitude, uint16_t frequency)
 }
 
 
-
-void sinusoid(void)
-{
-	  //Sine wave???
-
-	  int volt = 100;
-	  int up = 1;
-
-	  while(!messageReceived) // work on this
-	  {
-
-		setVoltage(volt);
-
-		setTimer(10);
-		waitForTimer();
-
-		if(volt < 5000 && up)
-		{
-			if(volt <= 4000)
-			{
-				volt += 50;
-			}
-			else
-			{
-				volt += 25;
-			}
-
-
-			if(volt >= 5000)
-			{
-				up = 0;
-				volt = 5000;
-			}
-
-		}
-
-
-
-		if(volt > 0 && !up)
-		{
-			if(volt > 4000)
-			{
-				volt -= 25;
-			}
-			else
-			{
-				volt -= 50;
-			}
-
-
-			if(volt <= 0)
-			{
-				up = 1;
-				volt = 100;
-			}
-		}
-
-	  }
-
-}
-
-
-returnStatus_t newsinusoid(uint16_t amplitude)
+returnStatus_t sinusoid(uint16_t amplitude, uint16_t frequency)
 {
 
 	float sineValues[8] = {0, 0.5, 0.707, 0.866, 1, 0.866, 0.707, 0.5};
+
+
+	float maxHoldTime = ((float) 1 / frequency) / (float)8;
 
 	returnStatus_t sts;
 
@@ -230,37 +171,25 @@ returnStatus_t newsinusoid(uint16_t amplitude)
 		{
 			uint16_t voltage = amplitude * sineValues[i];
 
-			int count = 0;
-
-			while(count++ < 10)
+			if (voltage == 0)
 			{
-				if(voltage == 0)
-				{
-					dischargePiezo();
-				}
-				else
-				{
-					 sts = setVoltage(voltage);
-					 if(sts > 0)
-					 {
-						return sts;
-					 }
-				}
-
-				// setTimer(5000);
-				// waitForTimer();
-
-
-				sts = wait(5000);
-
-				if(sts > 0)
+				dischargePiezo();
+			}
+			else
+			{
+				sts = setVoltage(voltage);
+				if (sts > 0)
 				{
 					return sts;
 				}
-
-
 			}
 
+			sts = wait(maxHoldTime * 1000000);
+
+			if (sts > 0)
+			{
+				return sts;
+			}
 		}
 
 
@@ -334,7 +263,7 @@ int main(void)
     	//generate signal here.
 		if(waveform.wave == SINE)
 		{
-			while(newsinusoid(waveform.amplitude) == EXIT_SUCCESS);
+			while(sinusoid(waveform.amplitude, waveform.frequency) == EXIT_SUCCESS);
 		}
 		else if (waveform.wave == SQUARE)
 		{
