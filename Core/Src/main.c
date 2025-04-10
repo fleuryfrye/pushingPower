@@ -12,7 +12,7 @@ outputCharacteristics_t waveform = {OFF, 0, 0, FALSE};
 
 uint8_t isSpiOn;
 
-
+extern __IO uint32_t uwTick;
 
 
 
@@ -27,17 +27,18 @@ returnStatus_t setVoltage(int16_t requestedVoltage){
 
 	while(!waveform.newRequest){
 
-		getPiezoVoltage(&currentVolt);
+		//If we haven't received a valid message in over 10 seconds, reset SPI periph. in case we've gotten out of sync with master.
+		if(uwTick >= SYS_TICKS_10_SEC)
+		{
+			resetSPI();
+			uwTick = 0;
+		}
 
-		//HAL_Delay(25);swaā
+		getPiezoVoltage(&currentVolt);
 
 		if (currentVolt <= (requestedVoltage * 0.9))
 		{
 			chargePiezo();
-
-			// setTimer(50);
-																																					
-			// waitForTimer();
 
 			confirmFlag = 0;
 		}
@@ -46,22 +47,12 @@ returnStatus_t setVoltage(int16_t requestedVoltage){
 		{
 			dischargePiezo();
 
-			// setTimer(50);
-
-			// waitForTimer();
-
-
 			confirmFlag = 0;
 		}
 
 		else
 		{
 			holdPiezoVoltage();
-
-			// setTimer(50);
-
-			// waitForTimer();
-
 
 			confirmFlag++;
 		}
@@ -204,7 +195,8 @@ int main(void)
 {
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+
+	HAL_Init();
 
 
   /* Configure the system clock */
@@ -228,10 +220,16 @@ int main(void)
   while (1) //while loop being used for testing right now.
   {
 
-//
-//	  int count = 0;
-//	  int totalCount = 0;
-//
+	//If we haven't received a valid message in over 10 seconds, reset SPI periph. in case we've gotten out of sync with master.
+	if(uwTick >= SYS_TICKS_10_SEC)
+	{
+		resetSPI();
+		uwTick = 0;
+	}
+
+	  int count = 0;
+	  int totalCount = 0;
+
 //	  while(1)
 //	  {
 //		  if(messageReceived)
@@ -273,41 +271,14 @@ int main(void)
 		{
 			while(setVoltage(waveform.amplitude) == EXIT_SUCCESS);
 		}
+		else
+		{
+			holdPiezoVoltage();
+		}
 
 
 		
     }
-
-
-    //Need to be able to detect if controller disconnected.
-    //This works, but we need to make this more robust
-    //Detect if NSS is high for 5 seconds, if so turn off SPI
-    // Detect if controller connected, re-enable SPI
-    //EXT Interrupt of NSS pin and a timer preferred.
-    //EXT Higher Interrupt Priority than SPI
-//	if(isSpiOn && NSSUnasserted())
-//	{
-//		while(NSSUnasserted())
-//		{db   1a
-//			if(timeout++ > 60000)
-//			{
-//				SPI1->CR1 &= ~(SPI_ENABLE);
-//				isSpiOn = 0;
-//				break;
-//			}
-//		}
-//
-//		timeout = 0;
-//
-//
-//
-//	}
-//
-//	if(!isSpiOn && !NSSUnasserted())
-//	{
-//		SPI1->CR1 |= SPI_ENABLE;
-//		isSpiOn = 1;
-//	}
 
   }
 }

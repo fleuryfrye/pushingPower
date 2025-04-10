@@ -40,7 +40,7 @@ extern "C" {
 #define FALSE 0U
 #define ERROR -1
 
-
+#define SYS_TICKS_10_SEC 100000
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);

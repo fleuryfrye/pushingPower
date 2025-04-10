@@ -37,6 +37,13 @@ void chargePiezo(void);
 void dischargePiezo(void);
 void holdPiezoVoltage(void);
 void getPiezoVoltage(int16_t* voltage);
+void activateChargeCircuit(void);
+void deactivateChargeCircuit(void);
+void activateDischargeCircuit(void);
+void deactivateDischargeCircuit(void);
+uint8_t isChargeCircuitActivated(void);
+uint8_t isDischargeCircuitActivated(void);
+
 
 
 

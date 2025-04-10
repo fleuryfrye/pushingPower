@@ -248,7 +248,7 @@ void setTimer3(uint16_t ms)
 uint32_t getTicks(uint32_t us)
 {
 
-	return (    TIMx_CLK_FREQ *  ((float)(us) / 1000000.0)    );
+	return (    (TIMx_CLK_FREQ *  ((float)(us) / 1000000.0)) - 1    );
 
 
 
@@ -257,7 +257,7 @@ uint32_t getTicks(uint32_t us)
 uint16_t getTimer3Ticks(uint16_t ms)
 {
 
-	uint32_t ticks = TIM3_CLK_FREQ * ((double)(ms) / 1000);
+	uint32_t ticks = (TIM3_CLK_FREQ * ((double)(ms) / 1000)) - 1;
 
 
 	return (  (ticks > 0xFFFF) ? 0xFFFF  : (uint16_t)(ticks)  );

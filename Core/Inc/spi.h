@@ -59,7 +59,9 @@
 //Functions
 void initSPI(void);
 
-uint8_t NSSUnasserted(void);
+uint8_t SPI_Idle(void);
+
+void resetSPI(void);
 
 void processMessage(void);
 int my_atoi(const char *str);

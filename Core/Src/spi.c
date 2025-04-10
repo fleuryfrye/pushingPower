@@ -53,7 +53,21 @@ void initSPI(void)
 }
 
 
-uint8_t NSSUnasserted(void)
+
+void resetSPI(void)
+{
+	RCC->APB2RSTR |= (SPI1_APB2_ENABLE);
+	wait(10);
+	RCC->APB2RSTR &= ~(SPI1_APB2_ENABLE);
+
+	memset(rxBuffer, 0, RX_BUFFER_LENGTH);
+	msgLength = 0;
+	initSPI();
+}
+
+
+
+uint8_t SPI_Idle(void)
 {
 	return (readPin(GPIOA, NSS_PIN));
 }
