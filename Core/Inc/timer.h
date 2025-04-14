@@ -24,7 +24,7 @@
 
 #define TIMx_CLK_FREQ (TIMx_CLK_INT_FREQ / 1)
 
-#define TIM3_PSC 9999
+#define TIM3_PSC 64000-1
 
 #define TIM3_CLK_FREQ (TIMx_CLK_INT_FREQ / (TIM3_PSC + 1))
 

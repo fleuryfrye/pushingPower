@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 
-volatile uint8_t rxBuffer[RX_BUFFER_LENGTH] = {};
+volatile uint16_t rxBuffer[MESSAGE_LEN] = {};
 
 uint8_t msgLength = 0;
 
@@ -13,9 +13,11 @@ uint8_t msgLength = 0;
 volatile uint8_t messageReceived = 0;
 
 volatile uint8_t processLength = 0;
-uint8_t msg[RX_BUFFER_LENGTH] = {};
+uint8_t msg[MESSAGE_LEN] = {};
 
 extern outputCharacteristics_t waveform;
+
+
 
 
 
@@ -43,7 +45,7 @@ void initSPI(void)
 	//RXNE interrupt triggered every byte of data received in the RX buffer.
 	SPI1->CR1 |= (SPI_ENABLE | SPI_RX_ONLY);
 
-	SPI1->CR2 |= (SPI_ENABLE_RX_INT | SPI_RX_FIFO_8_BIT_THRESHOLD | SPI_SET_DATA_SIZE);
+	SPI1->CR2 |= (SPI_ENABLE_RX_INT | SPI_RX_FIFO_16_BIT_THRESHOLD | SPI_SET_DATA_SIZE_16_BIT);
 
 	//Register RX interrupt with the NVIC
 	NVIC_EnableIRQ(SPI1_IRQn);
@@ -60,7 +62,7 @@ void resetSPI(void)
 	wait(10);
 	RCC->APB2RSTR &= ~(SPI1_APB2_ENABLE);
 
-	memset(rxBuffer, 0, RX_BUFFER_LENGTH);
+	memset(rxBuffer, 0, sizeof(rxBuffer));
 	msgLength = 0;
 	initSPI();
 }
@@ -81,10 +83,6 @@ uint8_t validRequest(outputCharacteristics_t requestedWaveform)
 	uint16_t requestedAmplitude = requestedWaveform.amplitude;
 	uint16_t requestedFrequency = requestedWaveform.frequency;
 
-	if(requestedWaveform.wave == NONE)
-	{
-		valid &= 0;
-	}
 
 	if(requestedAmplitude < 0 || requestedAmplitude > 5000)
 	{
@@ -96,80 +94,131 @@ uint8_t validRequest(outputCharacteristics_t requestedWaveform)
 		valid &= 0;
 	}
 
-	return valid;
+	return 1;
 
 }
+
 
 void processMessage(void)
 {
-	outputCharacteristics_t requestedWaveform = {NONE, 0, 0, FALSE};
+	outputCharacteristics_t newWaveform = {VOLT, 0, 0, 0};
+	uint8_t valid = 1;
 
-	char* tokenMsg = (char*)malloc(processLength * sizeof(char));
-	memcpy(tokenMsg, msg, processLength);
-
-    char *token = strtok(tokenMsg, ":");
-
-    if(token != NULL)
-    {
-    	if(strcmp(token, "VOLT") == 0)
-    	{
-			requestedWaveform.wave = DC;
-			token = strtok(NULL, ":");
-    		if(token != NULL)
-    		{
-    			requestedWaveform.amplitude = my_atoi(token);
-    		}
-    	}
-
-		else if(strcmp(token, "SIN") == 0)
-		{
-			requestedWaveform.wave = SINE;
-			token = strtok(NULL, ":");
-    		if(token != NULL)
-    		{
-    			requestedWaveform.amplitude = my_atoi(token);
-				token = strtok(NULL, ":");
-				if(token != NULL)
-				{
-					requestedWaveform.frequency = my_atoi(token);
-				}
-    		}
-		}
-
-		else if(strcmp(token, "RCT") == 0)
-		{
-			requestedWaveform.wave = SQUARE;
-			token = strtok(NULL, ":");
-    		if(token != NULL)
-    		{
-    			requestedWaveform.amplitude = my_atoi(token);
-				token = strtok(NULL, ":");
-				if(token != NULL)
-				{
-					requestedWaveform.frequency = my_atoi(token);
-				}
-    		}
-		}
-
-		else if(strcmp(token, "OFF") == 0)
-		{
-			requestedWaveform.wave = OFF;
-			requestedWaveform.amplitude = 0;
-			requestedWaveform.frequency = 0;
-		}
-
-    }
-
-
-	if(validRequest(requestedWaveform))
+	if((rxBuffer[0] & START_BIT) && (rxBuffer[1] & STOP_BIT))
 	{
-		waveform = requestedWaveform;
-		waveform.newRequest = TRUE;
+		uint8_t waveformBits = (rxBuffer[0] & ~START_BIT) >> WAVEFORM_BITS;
+
+		switch(waveformBits)
+		{
+		case(VOLT):
+				newWaveform.wave = VOLT;
+				break;
+		case(SINE):
+				newWaveform.wave = SINE;
+				break;
+
+		case(RECTANGLE):
+				newWaveform.wave = RECTANGLE;
+				break;
+		default:
+				valid = 0;
+			break;
+		}
+
+
+		newWaveform.amplitude = ( (rxBuffer[0] & ~START_BIT) & (rxBuffer[0] & ~(3 << WAVEFORM_BITS) ) );
+		newWaveform.frequency = (rxBuffer[1] & ~(STOP_BIT));
+
+		valid = validRequest(newWaveform);
+
+	}
+	else
+	{
+		valid = 0;
 	}
 
-    free(tokenMsg);
-	return;
+	if(valid)
+	{
+		waveform = newWaveform;
+		waveform.newRequest = 1;
+	}
+
+
+
 }
+
+
+
+// void processMessage(void)
+// {
+//	outputCharacteristics_t requestedWaveform = {NONE, 0, 0, FALSE};
+//
+//	char* tokenMsg = (char*)malloc(processLength * sizeof(char));
+//	memcpy(tokenMsg, msg, processLength);
+//
+//    char *token = strtok(tokenMsg, ":");
+//
+//    if(token != NULL)
+//    {
+//    	if(strcmp(token, "VOLT") == 0)
+//    	{
+//			requestedWaveform.wave = DC;
+//			token = strtok(NULL, ":");
+//    		if(token != NULL)
+//    		{
+//    			requestedWaveform.amplitude = my_atoi(token);
+//    		}
+//    	}
+//
+//		else if(strcmp(token, "SIN") == 0)
+//		{
+//			requestedWaveform.wave = SINE;
+//			token = strtok(NULL, ":");
+//    		if(token != NULL)
+//    		{
+//    			requestedWaveform.amplitude = my_atoi(token);
+//				token = strtok(NULL, ":");
+//				if(token != NULL)
+//				{
+//					requestedWaveform.frequency = my_atoi(token);
+//				}
+//    		}
+//		}
+//
+//		else if(strcmp(token, "RCT") == 0)
+//		{
+//			requestedWaveform.wave = SQUARE;
+//			token = strtok(NULL, ":");
+//    		if(token != NULL)
+//    		{
+//    			requestedWaveform.amplitude = my_atoi(token);
+//				token = strtok(NULL, ":");
+//				if(token != NULL)
+//				{
+//					requestedWaveform.frequency = my_atoi(token);
+//				}
+//    		}
+//		}
+//
+//		else if(strcmp(token, "OFF") == 0)
+//		{
+//			requestedWaveform.wave = OFF;
+//			requestedWaveform.amplitude = 0;
+//			requestedWaveform.frequency = 0;
+//		}
+//
+//    }
+//
+//
+//	if(validRequest(requestedWaveform))
+//	{
+//		waveform = requestedWaveform;
+//		waveform.newRequest = TRUE;
+//	}
+//
+//    free(tokenMsg);
+// 	return;
+// }
 
 //ATOI algorithm created by ChatGPT. Stdlib atoi() was not working correctly.
 //OpenAI, "Custom C implementation of the atoi algorithm," OpenAI ChatGPT, 2024. [Online]. Available: https://www.openai.com/chatgpt.

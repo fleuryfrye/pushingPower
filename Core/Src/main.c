@@ -8,7 +8,7 @@ void SystemClock_Config(void);
 
 extern volatile uint8_t messageReceived;
 
-outputCharacteristics_t waveform = {OFF, 0, 0, FALSE};
+outputCharacteristics_t waveform = {VOLT, 0, 0, FALSE};
 
 uint8_t isSpiOn;
 
@@ -227,15 +227,18 @@ int main(void)
 		uwTick = 0;
 	}
 
-	  int count = 0;
-	  int totalCount = 0;
-
+//	  int count = 0;
+//	  int totalCount = 0;
+//	  uint16_t totalTime_ms;
+//
 //	  while(1)
 //	  {
+//
 //		  if(messageReceived)
 //		  {
 //			  messageReceived = 0;
 //			  processMessage();
+//			  //waveform.newRequest = 1;
 //			  ++totalCount;
 //		  }
 //
@@ -243,7 +246,30 @@ int main(void)
 //		  {
 //			  waveform.newRequest = 0;
 //			  ++count;
+//			  if(count == 1)
+//			  {
+//				  setTimer3(10000);
+//				  continue;
+//			  }
+//
+//
+//			  if(count == 20000)
+//			  {
+//				  totalTime_ms = TIM3->CNT;
+//				  __asm__("nop");
+//			  }
+//
 //		  }
+//		  else if(uwTick >= SYS_TICKS_10_SEC)
+//			{
+//				resetSPI();
+//				initTimer3();
+//				totalTime_ms = 0;
+//				count = 0;
+//				totalCount = 0;
+//				uwTick = 0;
+//
+//			}
 //	  }
 
 
@@ -263,11 +289,11 @@ int main(void)
 		{
 			while(sinusoid(waveform.amplitude, waveform.frequency) == EXIT_SUCCESS);
 		}
-		else if (waveform.wave == SQUARE)
+		else if (waveform.wave == RECTANGLE)
 		{
 			while(rectangle(waveform.amplitude, waveform.frequency) == EXIT_SUCCESS);
 		}
-		else if (waveform.wave == DC)
+		else if (waveform.wave == VOLT)
 		{
 			while(setVoltage(waveform.amplitude) == EXIT_SUCCESS);
 		}

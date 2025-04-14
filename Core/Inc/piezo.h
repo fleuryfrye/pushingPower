@@ -10,14 +10,8 @@
 
 //Types
 
-typedef enum waveform
-{
-	OFF,
-	DC,
-	SINE,
-	SQUARE,
-	NONE
-} waveform_t;
+typedef enum {VOLT, SINE, RECTANGLE, PULSE} waveform_t;
+
 
 typedef struct outputCharacteristics
 {
