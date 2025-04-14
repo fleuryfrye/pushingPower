@@ -1,3 +1,15 @@
+<h1> SPI API </h1>
+To communicate with the Piezo Pusher, the SPI protocol is used. An API that can serialize the waveform parameters into packets is provided with the `piezoAPI` that can be found here: https://github.com/fleuryfrye/piezoAPI.
+
+Piezo Pusher is in receive-only slave mode. For detailed information on the message protocol, please refer to the piezoAPI.
+<br> On NUCELO dev board: <br>
+MOSI: D11 (PB5) <br>
+NSS:  D10 (PA11) <br>
+CLK:  D13 (PB3) <br>
+
+
+
+
 <h1> Getting Started</h1>
 
 <h2> STM32Cube IDE</h2>
