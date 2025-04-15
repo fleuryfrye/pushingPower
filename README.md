@@ -12,7 +12,7 @@ CLK:  D13 (PB3) <br>
 
 <h1> Getting Started</h1>
 
-<h2> STM32Cube IDE</h2>
+<h2> STM32Cube IDE </h2>
 We are working with the STM32F303K8 microcontroller for this project. STM32CubeIDE is what we will use to compile and flash our microcontroller with the latest firmware. It can also be used for developing code, but personally I prefer to use Visual Studio as my code editor and just use the IDE for compiling and flashing. It has a built-in debugger as well, which will allow us to get valuable information on memory and how our program is running.
 
 
@@ -69,6 +69,6 @@ I recommend putting all the logic for the signal modulation into `signal.h/c` to
 <h1> Submitting Changes </h1>
 todo
 
-<h1> Referenced Documentation
+<h1> Referenced Documentation </h1>
 STM32 Reference Manual: https://www.st.com/resource/en/reference_manual/rm0316-stm32f303xbcde-stm32f303x68-stm32f328x8-stm32f358xc-stm32f398xe-advanced-armbased-mcus-stmicroelectronics.pdf
 
