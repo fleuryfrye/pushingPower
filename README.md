@@ -71,6 +71,7 @@ todo
 
 <h1> Referenced Documentation </h1>
 STM32 Reference Manual: <a href="STM32F3%20Reference%20Manual.pdf" download>Download STM32F3 Reference Manual</a>
+
 STM32 ADC Information Document: <a href="STM32%20ADC%20Information.pdf" download>Download STM32 ADC Info (PDF)</a>
 
 
