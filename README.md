@@ -69,3 +69,6 @@ I recommend putting all the logic for the signal modulation into `signal.h/c` to
 <h1> Submitting Changes </h1>
 todo
 
+<h1> Referenced Documentation
+STM32 Reference Manual: https://www.st.com/resource/en/reference_manual/rm0316-stm32f303xbcde-stm32f303x68-stm32f328x8-stm32f358xc-stm32f398xe-advanced-armbased-mcus-stmicroelectronics.pdf
+
