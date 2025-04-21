@@ -197,36 +197,6 @@ void ADC1_2_IRQHandler(void)
 }
 
 
-//void SPI1_IRQHandler(void)
-//{
-//	uint8_t rxData;
-//
-//	if(SPI1->SR & SPI1_RXNE_SET) //RX Buffer has data that hasn't been read. Test with while and see if it works...
-//	{
-//		if(msgLength < RX_BUFFER_LENGTH)
-//		{
-//			rxData = (uint8_t)(SPI1->DR & 0x00FF);
-//			rxBuffer[msgLength++] = rxData;
-//		}
-//		else
-//		{
-//			msgLength = 0;
-//		}
-//
-//		if(rxData == '\0')
-//		{
-//			messageReceived = 1;
-//			processLength = msgLength;
-//			memcpy(msg, rxBuffer, msgLength);
-//			memset(rxBuffer, 0, msgLength);
-//			msgLength = 0;
-//		}
-//
-//	}
-//
-//}
-
-
 uint8_t startBitReceived = 0;
 uint16_t request[2];
 

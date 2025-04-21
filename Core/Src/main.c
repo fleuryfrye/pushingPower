@@ -10,185 +10,7 @@ extern volatile uint8_t messageReceived;
 
 outputCharacteristics_t waveform = {VOLT, 0, 0, FALSE};
 
-uint8_t isSpiOn;
-
 extern __IO uint32_t uwTick;
-
-
-
-
-returnStatus_t setVoltage(int16_t requestedVoltage){
-	int16_t currentVolt;
-
-	uint8_t confirmFlag = 0;
-
-
-	returnStatus_t sts;
-
-	while(!waveform.newRequest){
-
-		//If we haven't received a valid message in over 10 seconds, reset SPI periph. in case we've gotten out of sync with master.
-		if(uwTick >= SYS_TICKS_10_SEC)
-		{
-			resetSPI();
-			uwTick = 0;
-		}
-
-		getPiezoVoltage(&currentVolt);
-
-		if (currentVolt <= (requestedVoltage * 0.9))
-		{
-			chargePiezo();
-
-			confirmFlag = 0;
-		}
-
-		else if (currentVolt >= (requestedVoltage * 1.1))
-		{
-			dischargePiezo();
-
-			confirmFlag = 0;
-		}
-
-		else
-		{
-			holdPiezoVoltage();
-
-			confirmFlag++;
-		}
-
-
-		sts = wait(10);
-
-		if(sts > 0)
-		{
-			holdPiezoVoltage();
-			return sts;
-		}
-
-		if(confirmFlag > 1)
-		{
-			getPiezoVoltage(&currentVolt);
-
-			break;
-		}
-
-
-	}
-
-	return EXIT_SUCCESS;
-}
-
-
-
-
-
-returnStatus_t pulse(void)
-{
-
-	returnStatus_t sts;
-
-
-	sts = setVoltage(5000);
-
-	if(sts > 0)
-	{
-		return sts;
-	}
-
-
-	dischargePiezo();
-
-	return EXIT_SUCCESS;
-
-
-
-}
-
-
-
-
-
-
-
-returnStatus_t rectangle(uint16_t amplitude, uint16_t frequency)
-{
-
-	double period = 1.0 / frequency;
-
-	double holdTime = period / 2.0;
-
-	returnStatus_t sts;
-
-	sts = setVoltage(amplitude);
-
-	if(sts > 0)
-	{
-		return sts;
-	}
-
-	sts = wait(getMicroseconds(holdTime));
-
-	if(sts > 0)
-	{
-		return sts;
-	}
-
-	dischargePiezo();
-
-	sts = wait(getMicroseconds(holdTime));
-
-	if(sts > 0)
-	{
-		return sts;
-	}
-
-	return EXIT_SUCCESS;
-
-}
-
-
-returnStatus_t sinusoid(uint16_t amplitude, uint16_t frequency)
-{
-
-	float sineValues[8] = {0, 0.5, 0.707, 0.866, 1, 0.866, 0.707, 0.5};
-
-
-	float maxHoldTime = ((float) 1 / frequency) / (float)8;
-
-	returnStatus_t sts;
-
-		for(int i = 0; i < 9; i++)
-		{
-			uint16_t voltage = amplitude * sineValues[i];
-
-			if (voltage == 0)
-			{
-				dischargePiezo();
-			}
-			else
-			{
-				sts = setVoltage(voltage);
-				if (sts > 0)
-				{
-					return sts;
-				}
-			}
-
-			sts = wait(maxHoldTime * 1000000);
-
-			if (sts > 0)
-			{
-				return sts;
-			}
-		}
-
-
-	
-	return EXIT_SUCCESS;
-
-}
-
 
 
 int main(void)
@@ -212,9 +34,8 @@ int main(void)
   initSPI();
   initTimer();
   initTimer3();
-  isSpiOn = 1;
 
-  int16_t piezoVoltage = 0;
+//  int16_t piezoVoltage = 0;
 
 
   while (1) //while loop being used for testing right now.
@@ -287,15 +108,15 @@ int main(void)
     	//generate signal here.
 		if(waveform.wave == SINE)
 		{
-			while(sinusoid(waveform.amplitude, waveform.frequency) == EXIT_SUCCESS);
+			while(sinusoid(waveform.amplitude, waveform.frequency) == EXIT_SUCCESSFUL);
 		}
 		else if (waveform.wave == RECTANGLE)
 		{
-			while(rectangle(waveform.amplitude, waveform.frequency) == EXIT_SUCCESS);
+			while(rectangle(waveform.amplitude, waveform.frequency) == EXIT_SUCCESSFUL);
 		}
 		else if (waveform.wave == VOLT)
 		{
-			while(setVoltage(waveform.amplitude) == EXIT_SUCCESS);
+			while(setVoltage(waveform.amplitude) == EXIT_SUCCESSFUL);
 		}
 		else
 		{

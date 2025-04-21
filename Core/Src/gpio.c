@@ -1,7 +1,6 @@
 #include "gpio.h"
 
 
-
 void initGPIO(void)
 {
 	//Peripheral clocks turned off by default, each GPIO port has a clock that must be activated first.
@@ -40,7 +39,17 @@ void clearPin(GPIO_TypeDef* GPIOX, uint32_t pinNum)
 	GPIOX->BRR = (1 << pinNum);
 }
 
+
+
 uint8_t readPin(GPIO_TypeDef* GPIOX, uint32_t pinNum)
 {
 	return ((GPIOX->IDR >> pinNum) & 0x1);
+}
+
+
+//Checks if output is high or not. ODR and IDR do not match, so need to check ODR explicity when checking if charging/discharging is activated.
+
+uint8_t checkPinOutputStatus(GPIO_TypeDef* GPIOX, uint32_t pinNum)
+{
+	return ((GPIOX->ODR >> pinNum) & 0x1);
 }

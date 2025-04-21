@@ -1,9 +1,14 @@
-#ifndef TIMER_H
-#define TIMER_H
+#ifndef __TIMER_H
+#define __TIMER_H
 
-#include "main.h"
+//#include "main.h"
+#include "stdint.h"
+#include "spi.h"
 
 
+#define TRUE 1U
+#define FALSE 0U
+#define ERROR -1
 
 #define APB1_TIM2_EN (1 << 0)
 #define APB1_TIM3_EN (1 << 1)
@@ -24,16 +29,19 @@
 
 #define TIMx_CLK_FREQ (TIMx_CLK_INT_FREQ / 1)
 
-#define TIM3_PSC 64000-1
+#define TIM3_PSC 999
 
 #define TIM3_CLK_FREQ (TIMx_CLK_INT_FREQ / (TIM3_PSC + 1))
+
+#define SYS_TICKS_10_SEC 100000
+
 
 
 
 
 typedef enum timerStatus {TIMER_OFF, TIMER_ACTIVE, TIMER_EXPIRED} timerStatus_t;
 
-typedef enum returnStatus {EXIT_SUCCESS, EXIT_NEWREQUEST, EXIT_TIMEOUT} returnStatus_t;
+typedef enum returnStatus {EXIT_SUCCESSFUL, EXIT_NEWREQUEST, EXIT_TIMEOUT} returnStatus_t;
 
 
 
@@ -46,6 +54,8 @@ void setTimer3(uint16_t ms);
 
 
 int8_t waitForTimer(void);
+returnStatus_t waitForTimer3(void);
+
 
 returnStatus_t wait(uint32_t us);
 

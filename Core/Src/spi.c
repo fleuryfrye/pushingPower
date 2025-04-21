@@ -1,8 +1,10 @@
 
 #include "spi.h"
-#include "main.h"
 #include <string.h>
 #include <stdlib.h>
+#include "stm32f3xx_hal.h"
+#include "piezo.h"
+#include "timer.h"
 
 
 volatile uint16_t rxBuffer[MESSAGE_LEN] = {};
@@ -145,110 +147,6 @@ void processMessage(void)
 
 
 
-}
-
-
-
-// void processMessage(void)
-// {
-//	outputCharacteristics_t requestedWaveform = {NONE, 0, 0, FALSE};
-//
-//	char* tokenMsg = (char*)malloc(processLength * sizeof(char));
-//	memcpy(tokenMsg, msg, processLength);
-//
-//    char *token = strtok(tokenMsg, ":");
-//
-//    if(token != NULL)
-//    {
-//    	if(strcmp(token, "VOLT") == 0)
-//    	{
-//			requestedWaveform.wave = DC;
-//			token = strtok(NULL, ":");
-//    		if(token != NULL)
-//    		{
-//    			requestedWaveform.amplitude = my_atoi(token);
-//    		}
-//    	}
-//
-//		else if(strcmp(token, "SIN") == 0)
-//		{
-//			requestedWaveform.wave = SINE;
-//			token = strtok(NULL, ":");
-//    		if(token != NULL)
-//    		{
-//    			requestedWaveform.amplitude = my_atoi(token);
-//				token = strtok(NULL, ":");
-//				if(token != NULL)
-//				{
-//					requestedWaveform.frequency = my_atoi(token);
-//				}
-//    		}
-//		}
-//
-//		else if(strcmp(token, "RCT") == 0)
-//		{
-//			requestedWaveform.wave = SQUARE;
-//			token = strtok(NULL, ":");
-//    		if(token != NULL)
-//    		{
-//    			requestedWaveform.amplitude = my_atoi(token);
-//				token = strtok(NULL, ":");
-//				if(token != NULL)
-//				{
-//					requestedWaveform.frequency = my_atoi(token);
-//				}
-//    		}
-//		}
-//
-//		else if(strcmp(token, "OFF") == 0)
-//		{
-//			requestedWaveform.wave = OFF;
-//			requestedWaveform.amplitude = 0;
-//			requestedWaveform.frequency = 0;
-//		}
-//
-//    }
-//
-//
-//	if(validRequest(requestedWaveform))
-//	{
-//		waveform = requestedWaveform;
-//		waveform.newRequest = TRUE;
-//	}
-//
-//    free(tokenMsg);
-// 	return;
-// }
-
-//ATOI algorithm created by ChatGPT. Stdlib atoi() was not working correctly.
-//OpenAI, "Custom C implementation of the atoi algorithm," OpenAI ChatGPT, 2024. [Online]. Available: https://www.openai.com/chatgpt.
-int my_atoi(const char *str) {
-    int result = 0;      // To store the final integer value
-    int sign = 1;        // To handle negative numbers
-    int i = 0;           // Iterator index
-
-    // Step 1: Skip leading whitespace
-    while (str[i] == ' ' || str[i] == '\t' || str[i] == '\n' ||
-           str[i] == '\v' || str[i] == '\f' || str[i] == '\r') {
-        i++;
-    }
-
-    // Step 2: Check for optional '+' or '-' sign
-    if (str[i] == '-') {
-        sign = -1;
-        i++;
-    } else if (str[i] == '+') {
-        i++;
-    }
-
-    // Step 3: Convert digits to integer
-    while (str[i] >= '0' && str[i] <= '9') {
-        result = result * 10 + (str[i] - '0');  // Accumulate the digit
-        i++;
-    }
-
-    // Step 4: Return the result with the correct sign
-    return result * sign;
 }
 
 

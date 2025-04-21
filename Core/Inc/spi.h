@@ -3,7 +3,6 @@
 
 
 //Includes
-#include "stm32f3xx_hal.h"
 #include "gpio.h"
 
 //Variables
@@ -59,8 +58,7 @@
 
 
 
-//For receiving messages
-
+//SPI message decoding information.
 
 #define START_BIT (1 << 15) //bit 15
 #define STOP_BIT (1 << 15) // bit 15
@@ -72,11 +70,6 @@
 #define MAX_FREQUENCY 20000
 
 
-
-//
-
-
-
 //Functions
 void initSPI(void);
 
@@ -85,16 +78,5 @@ uint8_t SPI_Idle(void);
 void resetSPI(void);
 
 void processMessage(void);
-int my_atoi(const char *str);
-
-
-
-
-
-
-
-
-
-
 
 #endif

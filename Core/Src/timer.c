@@ -1,6 +1,6 @@
 #include "timer.h"
 #include "stm32f3xx_hal.h"
-
+#include "piezo.h"
 
 
 volatile timerStatus_t g_timer;
@@ -114,11 +114,37 @@ int8_t waitForTimer(void)
 	return 1;
 }
 
+returnStatus_t waitForTimer3(void)
+{
+	if(g_timer3 == TIMER_OFF) return ERROR;
+
+
+	while((hasTimer3Expired() != TRUE))
+	{
+
+		if(messageReceived)
+		{
+			messageReceived = 0;
+    		processMessage();
+		}
+
+		if(waveform.newRequest)
+		{
+			turnTimerOff();
+			return EXIT_NEWREQUEST;
+		}
+
+	}
+
+	return EXIT_SUCCESSFUL;
+}
+
+
 
 //wait() is a blocking function that waits for the timer to expire OR exits upon a valid message request being received.
 //Recommend to use this when waiting during signal generation.
 
-// If timer expires, we return EXIT_SUCCESS. If a valid message is received, EXIT_NEWREQUEST is generated.
+// If timer expires, we return EXIT_SUCCESSFUL. If a valid message is received, EXIT_NEWREQUEST is generated.
 
 returnStatus_t wait(uint32_t us)
 {
@@ -142,7 +168,7 @@ returnStatus_t wait(uint32_t us)
 
 	}
 
-	return EXIT_SUCCESS;
+	return EXIT_SUCCESSFUL;
 
 }
 

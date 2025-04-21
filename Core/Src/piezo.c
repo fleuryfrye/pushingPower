@@ -1,4 +1,5 @@
 #include "piezo.h"
+#include "stm32f3xx_hal.h"
 
 
 
@@ -79,13 +80,13 @@ void deactivateDischargeCircuit(void)
 //Low true configuration for the charging circuit.
 uint8_t isChargeCircuitActivated(void)
 {
-	return(readPin(GPIOA, PIEZO_CHARGE_PIN));
+	return(checkPinOutputStatus(GPIOA, PIEZO_CHARGE_PIN));
 }
 
 
 //High true configuration for the discharging circuit.
 uint8_t isDischargeCircuitActivated(void)
 {
-	return(readPin(GPIOA, PIEZO_DISCHARGE_PIN));
+	return(checkPinOutputStatus(GPIOA, PIEZO_DISCHARGE_PIN));
 }
 

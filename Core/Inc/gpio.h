@@ -59,5 +59,7 @@ void clearPin(GPIO_TypeDef* GPIOX, uint32_t pinNum);
 
 uint8_t readPin(GPIO_TypeDef* GPIOX, uint32_t pinNum);
 
+uint8_t checkPinOutputStatus(GPIO_TypeDef* GPIOX, uint32_t pinNum);
+
 
 #endif

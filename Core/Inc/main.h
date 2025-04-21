@@ -34,13 +34,9 @@ extern "C" {
 #include "piezo.h"
 #include "rcc.h"
 #include "timer.h"
+#include "signal.h"
 
 
-#define TRUE 1U
-#define FALSE 0U
-#define ERROR -1
-
-#define SYS_TICKS_10_SEC 100000
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
