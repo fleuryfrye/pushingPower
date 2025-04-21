@@ -1,3 +1,12 @@
+// Reset and Clock Controller
+// -----------
+
+// why is this here
+// for what does it do
+// generally not really sure what all of this does lol
+
+
+
 
 #include "rcc.h"
 
