@@ -28,7 +28,7 @@ returnStatus_t setVoltage(int16_t requestedVoltage)
 		if(requestedVoltage == 0)
 		{
 			dischargePiezo();
-			return EXIT_SUCCESSFUL;
+			break;
 		}
 
 		getPiezoVoltage(&currentVolt);
@@ -55,7 +55,10 @@ returnStatus_t setVoltage(int16_t requestedVoltage)
 		}
 
 
-		sts = wait(10);
+
+		if(hasTimer3Expired() == TRUE) break;
+
+		sts = wait(3);
 
 		if(sts > 0)
 		{

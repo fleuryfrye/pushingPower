@@ -116,7 +116,7 @@ int8_t waitForTimer(void)
 
 returnStatus_t waitForTimer3(void)
 {
-	if(g_timer3 == TIMER_OFF) return ERROR;
+	if(g_timer3 == TIMER_OFF) return EXIT_SUCCESSFUL;
 
 
 	while((hasTimer3Expired() != TRUE))
