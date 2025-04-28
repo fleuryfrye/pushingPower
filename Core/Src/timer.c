@@ -151,9 +151,13 @@ returnStatus_t wait(uint32_t us)
 
 	setTimer(us);
 
-	while(!hasTimerExpired())
+	while(hasTimerExpired() == FALSE)
 	{
-
+		if(hasTimer3Expired() == TRUE)
+		{
+			break;
+		}
+		
 		if(messageReceived)
 		{
 			messageReceived = 0;

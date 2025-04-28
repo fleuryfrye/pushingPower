@@ -3,8 +3,9 @@
 
 
 extern outputCharacteristics_t waveform;
-
 extern volatile uint8_t messageReceived;
+
+
 
 
 returnStatus_t setVoltage(int16_t requestedVoltage)
@@ -16,7 +17,7 @@ returnStatus_t setVoltage(int16_t requestedVoltage)
 
 	returnStatus_t sts;
 
-	while(!waveform.newRequest || (hasTimer3Expired() == FALSE)){
+	while(!waveform.newRequest){
 
 		//If we haven't received a valid message in over 10 seconds, reset SPI periph. in case we've gotten out of sync with master.
 		if(uwTick >= SYS_TICKS_10_SEC)
@@ -24,6 +25,7 @@ returnStatus_t setVoltage(int16_t requestedVoltage)
 			resetSPI();
 			uwTick = 0;
 		}
+
 
 		if(requestedVoltage == 0)
 		{
@@ -55,10 +57,12 @@ returnStatus_t setVoltage(int16_t requestedVoltage)
 		}
 
 
+		sts = wait(10);
 
-		if(hasTimer3Expired() == TRUE) break;
-
-		sts = wait(3);
+		if(hasTimer3Expired())
+		{
+			break;
+		}
 
 		if(sts > 0)
 		{
@@ -88,6 +92,7 @@ returnStatus_t setVoltage(int16_t requestedVoltage)
 
 	if(waveform.newRequest)
 	{
+		turnTimerOff();
 		return EXIT_NEWREQUEST;
 	}
 
@@ -186,14 +191,17 @@ returnStatus_t rectangle(uint16_t amplitude, uint16_t frequency)
 returnStatus_t sinusoid(uint16_t amplitude, uint16_t frequency)
 {
 
-	float sineValues[8] = {0, 0.5, 0.707, 0.866, 1, 0.866, 0.707, 0.5};
+	//float sineValues[8] = {0, 0.5, 0.707, 0.866, 1, 0.866, 0.707, 0.5};
+    float sineValues[27] = {0, 0.10, 0.22, 0.32, 0.40, 0.5, 0.60, 0.707, 0.75, 0.8, 0.866, 0.9, 0.95, 1, 0.95, 0.9, 0.866, 0.8, 0.75, 0.707, 0.6, 0.5, 0.4, 0.32, 0.22, 0.1, 0};
 
+	//float maxHoldTime = ((float) 1 / frequency) / (float)8;
+	float maxHoldTime = ((float) 1 / frequency) / (float)27;
 
-	float maxHoldTime = ((float) 1 / frequency) / (float)8;
 
 	returnStatus_t sts;
 
-		for(int i = 0; i < 8; i++)
+		// for(int i = 0; i < 8; i++)
+		for(int i = 0; i < 27; i++)
 		{
 			uint16_t voltage = amplitude * sineValues[i];
 

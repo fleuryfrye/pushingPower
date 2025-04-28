@@ -57,7 +57,7 @@
 #define ADC1_SMP3 9U
 
 #define ADC_VREF 3.3
-#define ADC_PIEZO_SCALAR 1515.15  * 1.05//3.3 volts should represent 5000V
+#define ADC_PIEZO_SCALAR 1515.15 //3.3 volts should represent 5000V
 #define ADC_RESOLUTION_BITS 12
 #define ADC_LEVELS ((1 << ADC_RESOLUTION_BITS) - 1)
 

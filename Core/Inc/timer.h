@@ -34,6 +34,7 @@
 #define TIM3_CLK_FREQ (TIMx_CLK_INT_FREQ / (TIM3_PSC + 1))
 
 #define SYS_TICKS_10_SEC 100000
+#define SYS_TICKS_3_SEC 30000
 
 
 

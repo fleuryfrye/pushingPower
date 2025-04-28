@@ -42,7 +42,7 @@ int main(void)
   {
 
 	//If we haven't received a valid message in over 10 seconds, reset SPI periph. in case we've gotten out of sync with master.
-	if(uwTick >= SYS_TICKS_10_SEC)
+	if(uwTick >= SYS_TICKS_3_SEC && SPI_Idle())
 	{
 		resetSPI();
 		uwTick = 0;

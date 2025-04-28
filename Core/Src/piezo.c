@@ -41,7 +41,7 @@ void getPiezoVoltage(int16_t* voltage)
 	double rawVoltage = (ADC_VREF * adcData[PIEZO_INDEX]) / ADC_LEVELS;
 
 
-	*voltage = (int16_t)(rawVoltage * ADC_PIEZO_SCALAR); //Scale raw voltage to be -20V to 5000V
+	*voltage = (int16_t)(rawVoltage * ADC_PIEZO_SCALAR * 1.03); //Scale raw voltage to be -20V to 5000V
 
 }
 
